@@ -1,10 +1,26 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { useThree, useFrame, Canvas } from '@react-three/fiber'; // Added Canvas import
+// src/Scene.jsx
+import React, { useRef, useEffect, useState, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { useThree, useFrame, Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { Model } from './Model';
 
-// ShadowAuraAnalysis Component
+// --- NEW: Helper Component to Capture Screenshot ---
+const SceneCapture = forwardRef((props, ref) => {
+  const { gl, scene, camera } = useThree();
+
+  useImperativeHandle(ref, () => ({
+    capture: () => {
+      // Force a render to ensure the buffer is fresh
+      gl.render(scene, camera);
+      // Return the image as a Base64 string (JPEG format, 0.5 quality to save space)
+      return gl.domElement.toDataURL('image/jpeg', 0.5);
+    }
+  }));
+  return null;
+});
+
+// ShadowAuraAnalysis Component (Unchanged)
 const ShadowAuraAnalysis = ({ enabled, models }) => {
     const { scene, size } = useThree();
     const planeRef = useRef();
@@ -227,8 +243,9 @@ const SafeTransformControls = ({ object, mode, onMouseUp }) => {
   );
 };
 
-// Main Scene Component
-export function Scene({ 
+// --- MODIFIED SCENE COMPONENT ---
+// Now using forwardRef to allow the parent (Create.jsx) to call functions inside here
+export const Scene = forwardRef(({ 
   models = [], 
   transformMode, 
   selectedObject, 
@@ -236,7 +253,7 @@ export function Scene({
   onTransformEnd, 
   lightIntensity,
   auraAnalysisEnabled = false 
-}) {
+}, ref) => {
   
   const handleMouseUp = () => {
     if (selectedObject && onTransformEnd) {
@@ -258,13 +275,18 @@ export function Scene({
       shadows 
       camera={{ position: [0, 1.5, 4] }}
       onPointerMissed={() => !auraAnalysisEnabled && setSelectedObject(null)}
+      // IMPORTANT: preserveDrawingBuffer must be TRUE for screenshots to work!
       gl={{
+        preserveDrawingBuffer: true, 
         powerPreference: "high-performance",
         antialias: false,
         alpha: false
       }}
       dpr={1}
     >
+      {/* Attach the capture logic using the ref passed from Create.jsx */}
+      <SceneCapture ref={ref} />
+
       <hemisphereLight skyColor={0x78909c} groundColor={0x455a64} intensity={0.8} />
       <directionalLight castShadow position={[0, 3, 2]} intensity={1.5} />
       
@@ -294,4 +316,4 @@ export function Scene({
       {auraAnalysisEnabled && <ShadowAuraAnalysis enabled={auraAnalysisEnabled} models={models} />}
     </Canvas>
   );
-}
+});

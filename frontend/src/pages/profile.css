@@ -1,0 +1,195 @@
+/* src/pages/profile.css */
+
+:root {
+  --neon-cyan: #00f3ff;
+  --neon-purple: #bc13fe;
+  --bg-dark: #050505;
+}
+
+/* 1. Canvas - Deep Dark Space */
+.profile-page {
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(0, 243, 255, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(188, 19, 254, 0.1) 0%, transparent 40%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  padding: 40px;
+  overflow: hidden;
+}
+
+/* 2. Remove the "Container" Look - Make it a Layout Wrapper instead */
+.profile-card {
+  background: transparent; /* No background */
+  border: none;            /* No border */
+  box-shadow: none;        /* No shadow */
+  width: 100%;
+  max-width: 1000px;       /* Wider layout */
+  
+  /* SCATTER THE ELEMENTS */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 40px; /* Space between the floating islands */
+}
+
+/* --- ISLAND 1: IDENTITY (Avatar + Name) --- */
+.profile-header {
+  flex: 1 1 300px; /* Grow to fill space, but min 300px */
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.profile-header:hover {
+  transform: translateY(-5px);
+  border-color: var(--neon-cyan);
+}
+
+.avatar-circle {
+  width: 120px;
+  height: 120px;
+  background: #111;
+  border: 3px solid var(--neon-cyan);
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+}
+
+.profile-header h1 {
+  font-size: 2.2rem;
+  margin: 0;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.email-text {
+  color: #888;
+  margin-top: 10px;
+  font-family: monospace;
+  font-size: 1rem;
+}
+
+/* --- ISLAND 2: STATS (Age / Date) --- */
+.profile-details {
+  flex: 1 1 250px;
+  background: transparent; /* Transparent wrapper */
+  padding: 0;
+  border: none;
+  
+  /* Grid of tiles */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-item {
+  background: rgba(30, 30, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 4px solid var(--neon-purple); /* Neon accent */
+  border-radius: 16px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+  background: rgba(188, 19, 254, 0.1);
+  transform: translateX(5px);
+  box-shadow: 0 0 20px rgba(188, 19, 254, 0.2);
+}
+
+.detail-item .label {
+  color: #aaa;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.detail-item .value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* --- ISLAND 3: ACTIONS (Buttons) --- */
+.profile-actions {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.action-btn {
+  padding: 20px;
+  border-radius: 16px;
+  text-decoration: none;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Primary Button (Designer) */
+.action-btn.primary {
+  background: transparent;
+  border: 2px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+}
+
+.action-btn.primary:hover {
+  background: var(--neon-cyan);
+  color: black;
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+  transform: scale(1.05);
+}
+
+/* Logout Button */
+.action-btn.logout {
+  background: rgba(255, 50, 50, 0.1);
+  border: 1px solid transparent;
+  color: #ff4444;
+}
+
+.action-btn.logout:hover {
+  background: #ff4444;
+  color: white;
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .profile-card {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .profile-header, .profile-details, .profile-actions {
+    width: 100%;
+    flex: none;
+  }
+}

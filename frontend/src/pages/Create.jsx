@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+
 import "./create.css";
 // Import useNavigate to handle navigation
-import { Link, useNavigate } from "react-router-dom";
 import background_video from "../assets/landing_page_vid.mp4";
 import { Scene } from '../Scene.jsx';
 import { supabase } from "../supabaseClient";
@@ -9,6 +8,9 @@ import { LibraryPanel } from "../components/LibraryPanel";
 // import EmotionDetector from '../components/EmotionDetector'; // We've moved this
 // import EmotionDashboard from '../components/EmotionDashboard'; // We've moved this
 import { emotionLogger } from '../utils/EmotionLogger';
+// Add 'useLocation' if not already imported
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react"; // <--- Add useRef
 
 const sentences = [
   "Imagine your dream space...",
@@ -61,6 +63,81 @@ const Create = () => {
   const [lightIntensity, setLightIntensity] = useState(10);
   const [auraAnalysisEnabled, setAuraAnalysisEnabled] = useState(false);
   const [currentDesign, setCurrentDesign] = useState(null);
+  // Inside const Create = () => { ...
+  const [designName, setDesignName] = useState("My New Room");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [user, setUser] = useState(null);
+
+  const location = useLocation(); // <--- ADD THIS
+  const sceneRef = useRef(); // <--- ADD THIS
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    checkUser();
+  }, []);
+
+  // --- NEW: Load design from History if available ---
+  useEffect(() => {
+    if (location.state && location.state.loadedModels) {
+      console.log("📥 Loading design from History:", location.state.loadedName);
+      setModels(location.state.loadedModels);
+      setDesignName(location.state.loadedName);
+      
+      // Clear the state so it doesn't reload if we refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+  // --------------------------------------------------
+
+ const handleSaveDesign = async () => {
+    setIsSaving(true);
+    
+    // 1. Check User
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("You must be logged in to save a design!");
+      navigate("/login");
+      return;
+    }
+
+    // 2. CAPTURE SCREENSHOT (The New Part)
+    let screenshotUrl = "";
+    if (sceneRef.current) {
+      try {
+        // This calls the function we just added to Scene.jsx
+        screenshotUrl = sceneRef.current.capture();
+        console.log("📸 Screenshot captured!");
+      } catch (err) {
+        console.error("Screenshot failed:", err);
+      }
+    }
+
+    // 3. Prepare Data
+    const designData = {
+      user_id: user.id,
+      design_name: designName,
+      room_data: models,
+      thumbnail_url: screenshotUrl // <--- Save the image string here
+    };
+
+    // 4. Save to Supabase
+    const { error } = await supabase
+      .from('saved_designs')
+      .insert([designData]);
+
+    if (error) {
+      console.error("Error saving design:", error);
+      alert("Failed to save design.");
+    } else {
+      alert("Design saved successfully!");
+    }
+    
+    setIsSaving(false);
+  };
 
   useEffect(() => {
     const fetchLibrary = async () => {
@@ -269,7 +346,7 @@ const Create = () => {
     } else {
       // --- 🧠 MODIFICATION: Send 'sceneState' (memory) to the AI 🧠 ---
       try {
-        const response = await fetch("http://localhost:3002/api/generate", {
+        const response = await fetch("http://192.168.1.17:3002/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           // We now send the prompt AND the current scene state (the 'models' array)
@@ -391,11 +468,18 @@ const Create = () => {
               <span className="label">✨ Discover My Style</span>
             </li>
 
+            {/* FIXED HISTORY BUTTON */}
             <li className="sidebar-menu-item">
+              <Link className="item" to="/history">
               <span className="label">History</span>
+              </Link>
             </li>
+
+            {/* FIXED SETTINGS BUTTON */}
             <li className="sidebar-menu-item">
-              <span className="label">Settings</span>
+              <Link className="item" to="/settings">
+                <span className="label">Settings</span>
+              </Link>
             </li>
             <li className="sidebar-menu-item">
               <Link className="item" to="/">
@@ -456,6 +540,25 @@ const Create = () => {
                       : "Generate Aura"}
                   </button>
 
+                  {/* Add this inside <div className="transform-controls-ui"> */}
+
+                  <div className="save-controls">
+                    <input 
+                      type="text" 
+                      value={designName} 
+                      onChange={(e) => setDesignName(e.target.value)}
+                      className="design-name-input"
+                      placeholder="Enter design name"
+                    />
+                    <button 
+                      onClick={handleSaveDesign} 
+                      disabled={isSaving}
+                      className="save-button"
+                    >
+                      {isSaving ? "Saving..." : "💾 Save Room"}
+                    </button>
+                  </div>
+
                   {selectedObject && (
                     <button
                       onClick={deleteSelectedModel}
@@ -504,6 +607,7 @@ const Create = () => {
 
                 <div className="scene-viewport">
                   <Scene
+                    ref={sceneRef} // <--- THIS IS CRITICAL
                     models={models}
                     transformMode={transformMode}
                     selectedObject={selectedObject}

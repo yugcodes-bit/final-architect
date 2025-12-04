@@ -6,8 +6,6 @@ import background_video from "../assets/landing_page_vid.mp4";
 import { Scene } from '../Scene.jsx';
 import { supabase } from "../supabaseClient";
 import { LibraryPanel } from "../components/LibraryPanel";
-// import EmotionDetector from '../components/EmotionDetector'; // We've moved this
-// import EmotionDashboard from '../components/EmotionDashboard'; // We've moved this
 import { emotionLogger } from '../utils/EmotionLogger';
 
 const sentences = [
@@ -95,36 +93,59 @@ const Create = () => {
     );
   };
 
-  const getPositionFromPlacement = (placement) => {
-    const roomBoundary = 3.5;
+  // --- 🧠 NEW: Smart Position Calculator (Handles Relative & Absolute) 🧠 ---
+  const calculateSmartPosition = (placement, relativeTo, currentSceneModels) => {
+    const roomBoundary = 3.5; // Keeping your existing boundary logic
+
+    // 1. ABSOLUTE POSITIONING (Default fallback or if relative_to is "room")
+    if (!relativeTo || relativeTo === "room") {
+      switch (placement) {
+        case "center": return [0, 0, 0];
+        case "back-wall": return [0, 0, -roomBoundary];
+        case "front-wall": return [0, 0, roomBoundary];
+        case "left-wall": return [-roomBoundary, 0, 0];
+        case "right-wall": return [roomBoundary, 0, 0];
+        case "back-left-corner": return [-roomBoundary, 0, -roomBoundary];
+        case "back-right-corner": return [roomBoundary, 0, -roomBoundary];
+        case "front-left-corner": return [-roomBoundary, 0, roomBoundary];
+        case "front-right-corner": return [roomBoundary, 0, roomBoundary];
+        default: 
+          // Default to a random-ish position in the middle
+          return [(Math.random() - 0.5) * 2, 0, (Math.random() - 0.5) * 2];
+      }
+    }
+
+    // 2. RELATIVE POSITIONING
+    // Find the object the user is talking about in the existing models
+    const anchorObj = currentSceneModels.find(m => 
+      m.models.category.toLowerCase().includes(relativeTo.toLowerCase())
+    );
+
+    // If anchor not found, fallback to center
+    if (!anchorObj) {
+      console.warn(`Anchor object "${relativeTo}" not found. Placing in center.`);
+      return [0, 0, 0];
+    }
+
+    // Get anchor position
+    const [ax, ay, az] = anchorObj.position;
+    const offset = 2.0; // Distance away (2 meters)
+
     switch (placement) {
-      case "center":
-        return [0, 0, 0];
-      case "back-wall":
-        return [0, 0, -roomBoundary];
-      case "front-wall":
-        return [0, 0, roomBoundary];
-      case "left-wall":
-        return [-roomBoundary, 0, 0];
-      case "right-wall":
-        return [roomBoundary, 0, 0];
-      case "back-left-corner":
-        return [-roomBoundary, 0, -roomBoundary];
-      case "back-right-corner":
-        return [roomBoundary, 0, -roomBoundary];
-      default:
-        // Default to a random-ish position in the middle
-        return [(Math.random() - 0.5) * 2, 0, (Math.random() - 0.5) * 2];
+      case "right": return [ax + offset, ay, az];
+      case "left": return [ax - offset, ay, az];
+      case "front": return [ax, ay, az + offset]; 
+      case "back": return [ax, ay, az - offset];
+      case "on_top": return [ax, ay + 1, az]; // Just in case we add small items later
+      default: return [ax + offset, ay, az];
     }
   };
 
-
-// --- 🎨 UPDATED FUNCTION: Handles Room Base + Additive Models 🎨 ---
+  // --- 🎨 UPDATED FUNCTION: Handles Room Base + Additive Models 🎨 ---
   const processAiResponse = async (aiResponse) => {
     const newSceneModels = [];
 
     // 1. Check if the Room Base (White Cube) is missing
-    // We look at the 'models' state to see if 'room_base' is already there.
     const roomBaseExists = models.some(m => m.models.category === 'room_base');
 
     if (!roomBaseExists) {
@@ -138,7 +159,6 @@ const Create = () => {
 
         if (roomError) throw roomError;
 
-        // Add the room base to our new batch of models
         newSceneModels.push({
           instanceId: Date.now() + Math.random(),
           position: [0, 0, 0],
@@ -157,7 +177,6 @@ const Create = () => {
 
     // 3. Loop through and fetch all NEW furniture
     for (const item of furnitureItems) {
-      // Skip adding the room_base if the AI accidentally suggests it again
       if (item.name === "room_base") continue;
 
       let modelData = null;
@@ -187,9 +206,12 @@ const Create = () => {
         queryError = error;
       }
 
-      // If we found a model, add it to the newSceneModels array
+      // If we found a model, add it
       if (modelData) {
-        const position = getPositionFromPlacement(item.placement);
+        // --- 🔥 KEY CHANGE: Use Smart Position Calculator ---
+        // We pass the item.placement, item.relative_to, and the CURRENT models state
+        const position = calculateSmartPosition(item.placement, item.relative_to, models);
+        
         newSceneModels.push({
           instanceId: Date.now() + Math.random(),
           position: position,
@@ -208,11 +230,10 @@ const Create = () => {
       }
     }
 
-    // 4. Update the state by APPENDING new models to previous models
+    // 4. Update the state by APPENDING new models
     setModels((prevModels) => {
       const updatedModels = [...prevModels, ...newSceneModels];
       
-      // Update the design context
       const newDesign = {
         id: 'design_' + Date.now(),
         type: 'ai_generated_update',
@@ -221,16 +242,10 @@ const Create = () => {
         furnitureCount: updatedModels.length
       };
       
-      console.log('🎨 Updated design:', newDesign);
-      console.log('📦 Added elements:', newSceneModels);
-      
       setCurrentDesign(newDesign);
       return updatedModels;
     });
   };
-  // --- END OF UPDATED FUNCTION ---
-  // --- END OF MODIFICATION ---
-
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -241,7 +256,7 @@ const Create = () => {
     setMessages([{ text: userPrompt, sender: "user" }]);
     
     if (userPrompt === "living room") {
-      // ... (This pre-made layout logic is fine, we'll leave it as is)
+      // Pre-made layout logic
       const { data, error } = await supabase
         .from("room_layouts")
         .select(`position, rotation, scale, models ( file_url, id, category )`)
@@ -264,30 +279,27 @@ const Create = () => {
         };
         
         setCurrentDesign(layoutDesign);
-        setModels(modelsWithIds); // This replaces the scene, which is correct for a pre-made layout
+        setModels(modelsWithIds);
       }
     } else {
-      // --- 🧠 MODIFICATION: Send 'sceneState' (memory) to the AI 🧠 ---
+      // AI Generation Logic
       try {
         const response = await fetch("http://localhost:3002/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // We now send the prompt AND the current scene state (the 'models' array)
           body: JSON.stringify({ 
             prompt: userPrompt,
-            sceneState: models // <-- This is our "memory"
+            sceneState: models 
           }),
         });
         
         if (!response.ok) throw new Error("Network response was not ok");
         const aiResponse = await response.json();
         
-        // This function will now APPEND the new items instead of replacing
         await processAiResponse(aiResponse); 
       } catch (error) {
         console.error("Failed to get AI response:", error);
       }
-      // --- END OF MODIFICATION ---
     }
   };
 
@@ -300,11 +312,8 @@ const Create = () => {
       models: { file_url: item.file_url, category: item.category },
     };
     
-    // --- MODIFICATION: Use functional update for setModels and setCurrentDesign ---
     setModels((prevModels) => {
       const updatedModels = [...prevModels, newModel];
-
-      // UPDATE DESIGN CONTEXT WHEN ADDING MANUAL FURNITURE
       if (currentDesign) {
         const updatedDesign = {
           ...currentDesign,
@@ -314,7 +323,6 @@ const Create = () => {
         };
         setCurrentDesign(updatedDesign);
       } else {
-        // This is the first item added, create a new design
         const newDesign = {
           id: 'design_' + Date.now(),
           type: 'manual_addition',
@@ -324,10 +332,8 @@ const Create = () => {
         };
         setCurrentDesign(newDesign);
       }
-
       return updatedModels;
     });
-    // --- END OF MODIFICATION ---
     
     if (models.length === 0 && messages.length === 0) {
       setMessages([{ text: "Starting design...", sender: "system" }]);
@@ -337,13 +343,10 @@ const Create = () => {
   const deleteSelectedModel = () => {
     if (!selectedObject) return;
     
-    // --- MODIFICATION: Use functional update for setModels and setCurrentDesign ---
     setModels((prevModels) => {
       const remainingModels = prevModels.filter(
         (model) => model.instanceId !== selectedObject.userData.instanceId
       );
-
-      // UPDATE DESIGN CONTEXT WHEN DELETING
       if (currentDesign) {
         const updatedDesign = {
           ...currentDesign,
@@ -351,15 +354,12 @@ const Create = () => {
         };
         setCurrentDesign(updatedDesign);
       }
-
       return remainingModels;
     });
-    // --- END OF MODIFICATION ---
     
     setSelectedObject(null);
   };
 
-  // --- NEW: Handle navigation to the discover page ---
   const handleDiscoverClick = () => {
     navigate('/discover-style');
   };
@@ -385,12 +385,9 @@ const Create = () => {
             <li className="sidebar-menu-item">
               <span className="label">New Chat</span>
             </li>
-            
-            {/* --- NEW: "Discover My Style" Button --- */}
             <li className="sidebar-menu-item" onClick={handleDiscoverClick}>
               <span className="label">✨ Discover My Style</span>
             </li>
-
             <li className="sidebar-menu-item">
               <span className="label">History</span>
             </li>
@@ -466,9 +463,6 @@ const Create = () => {
                   )}
                 </div>
 
-                {/* --- MODIFICATION: Removed the hidden Emotion components --- */}
-                {/* The Emotion components are now on their own page */}
-
                 {selectedObject?.userData?.isLamp && (
                   <div className="light-controls-ui">
                     <label>Light Intensity</label>
@@ -485,16 +479,13 @@ const Create = () => {
                   </div>
                 )}
 
-                {/* AURA LEGEND */}
                 {auraAnalysisEnabled && (
                   <div className="aura-legend">
                     <h4>Lighting Analysis</h4>
-                    {/* ... (legend items) ... */}
                     <div className="legend-item">
                       <div className="color-box" style={{backgroundColor: '#ff0000'}}></div>
                       <span>Very Bright (&gt;750 lux)</span>
                     </div>
-                    {/* ... all other legend items ... */}
                     <div className="legend-item">
                       <div className="color-box" style={{backgroundColor: '#000066'}}></div>
                       <span>Dark (&lt;50 lux)</span>

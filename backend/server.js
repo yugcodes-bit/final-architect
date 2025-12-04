@@ -35,81 +35,67 @@ async function getOllamaResponse(system_prompt, user_prompt) {
 
 
 // --- 🧠 ENDPOINT 1: MODIFIED FOR CONVERSATIONAL MEMORY 🧠 ---
+// --- 🧠 ENDPOINT 1: MODIFIED FOR RELATIVE POSITIONING (STRICTER) 🧠 ---
 app.post('/api/generate', async (req, res) => {
     try {
-        // --- MODIFICATION 1 ---
-        // We now receive the prompt AND the current sceneState (our "memory")
         const { prompt, sceneState } = req.body;
 
-        // --- MODIFICATION 2: The New AI "Brain" ---
-        // This new system prompt teaches the AI to be conversational and "additive"
-        const systemPrompt = `You are an expert conversational interior design AI. Your task is to modify a 3D scene based on user requests.
+        const systemPrompt = `You are a spatial reasoning AI for interior design.
+        Your task is to add new furniture to a 3D scene based on user commands.
 
-        You will be given the current scene as "currentScene" (a JSON array of objects) and a new "userRequest" (a string).
+        INPUT:
+        1. "currentScene": A list of existing objects.
+        2. "userRequest": The user's command.
 
-        Your goal is to return a JSON object containing ONLY THE NEW items to be added.
+        OUTPUT:
+        Return a JSON object with a key "items".
+        Each item MUST have exactly these 4 fields:
+        1. "name": The category (e.g., chair, table, lamp).
+        2. "qualifiers": Array of adjectives (e.g., ["modern", "red"]).
+        3. "relative_to": The anchor object name. Use "room" if no specific object is mentioned.
+        4. "placement": The direction relative to the anchor.
 
-        RULES:
-        1.  **JSON Format:** The JSON object must have a key "items" which is an array of objects.
-        2.  **Item Format:** Each object must have "name" (a category like chair, sofa), "qualifiers" (an array of adjectives), and "placement" (a simple string like "center" or "back-wall").
-        3.  **ADDITIVE ONLY:** Only include *new* items requested by the user. DO NOT include items that are already in the "currentScene" array. This is the most important rule.
-        4.  **Placement:** Use simple placement strings for now ("center", "back-wall", "left-wall", "right-wall", "front-wall", "back-left-corner", "back-right-corner").
-        5.  **Empty Response:** If the user request is not a design command (e.g., "hello", "how are you"), or if no new items are needed, return an empty array: {"items": []}.
-        6.  **RESPONSE:** Respond with ONLY the JSON object and no other text.
+        CRITICAL PLACEMENT RULES:
+        - If the user says "right of X", "next to X", "on X":
+          Set "relative_to" = "X" (find the closest matching name in currentScene).
+          Set "placement" = "right", "left", "front", "back", or "on_top".
+          
+        - If the user says "in the corner", "center", "against wall":
+          Set "relative_to" = "room".
+          Set "placement" = "center", "back-wall", "back-right-corner", etc.
 
-        EXAMPLE:
-        currentScene: [{"name": "sofa", "qualifiers": ["modern"], "placement": "back-wall"}]
-        userRequest: "add a small chair in the center"
-        Your Response:
-        {"items": [{"name": "chair", "qualifiers": ["small"], "placement": "center"}]}
+        EXAMPLES:
+        User: "put a chair to the right of the table"
+        Output: {"items": [{"name": "chair", "qualifiers": [], "relative_to": "table", "placement": "right"}]}
+
+        User: "add a sofa in the back"
+        Output: {"items": [{"name": "sofa", "qualifiers": [], "relative_to": "room", "placement": "back-wall"}]}
+        
+        Respond with ONLY VALID JSON.
         `;
 
-        // --- MODIFICATION 3 ---
-        // We create a new user prompt that includes the scene memory
         const userPrompt = `currentScene: ${JSON.stringify(sceneState, null, 2)}
-        
-userRequest: "${prompt}"`;
+        userRequest: "${prompt}"`;
 
-        // --- MODIFICATION 4 ---
-        // Get the AI's response using the new prompts
         const jsonResponse = await getOllamaResponse(systemPrompt, userPrompt);
 
         console.log("AI Response for /generate:", jsonResponse);
 
-        // --- MODIFICATION 5: Robust JSON Parsing ---
-        // This prevents a server crash if Llama 3 sends "Here is the JSON:..."
         let parsedResponse;
         try {
             parsedResponse = JSON.parse(jsonResponse);
         } catch (parseError) {
             console.error("Error: AI did not return valid JSON.", parseError);
-            console.error("AI's raw response was:", jsonResponse);
-            // Throw a specific error that our main catch block can handle
-            throw new Error(`AI response was not valid JSON: ${jsonResponse}`);
+            throw new Error(`AI response was not valid JSON`);
         }
 
         res.json(parsedResponse);
 
     } catch (error) {
-        console.error("Error in /api/generate:", error);
-
-        // --- MODIFICATION 6: Helpful Error Messages ---
-        // Check if the error is a connection refusal
-        if (error.code === 'ECONNREFUSED') {
-            console.error("FATAL ERROR: Could not connect to Ollama server at http://localhost:11434.");
-            console.error("Please ensure the Ollama application is running.");
-            return res.status(500).json({ error: "Failed to connect to AI server. Is Ollama running?" });
-        }
-
-        // Check for the specific JSON parse error we threw
-        if (error.message.startsWith("AI response was not valid JSON")) {
-            return res.status(500).json({ error: error.message });
-        }
-
-        res.status(500).json({ error: "Failed to generate content" });
+        console.error("Error in /api/generate:", error.message);
+        res.status(500).json({ error: error.message });
     }
 });
-// --- END OF MODIFIED ENDPOINT ---
 
 
 // --- ENDPOINT 2: ANALYZE AURA FOR LIGHTING (Unchanged) ---

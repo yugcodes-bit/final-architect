@@ -6,9 +6,9 @@ import background_video from "../assets/landing_page_vid.mp4";
 import { Scene } from '../Scene.jsx';
 import { supabase } from "../supabaseClient";
 import { LibraryPanel } from "../components/LibraryPanel";
-// import EmotionDetector from '../components/EmotionDetector'; // We've moved this
-// import EmotionDashboard from '../components/EmotionDashboard'; // We've moved this
 import { emotionLogger } from '../utils/EmotionLogger';
+// --- NEW: Import the Store to access the "Smiled-At" items ---
+import { useStore } from '../store'; 
 
 const sentences = [
   "Imagine your dream space...",
@@ -50,6 +50,10 @@ const Typewriter = () => {
 
 const Create = () => {
   const navigate = useNavigate();
+
+  // --- NEW: Access Global State ---
+  const emotionalLoadout = useStore((state) => state.emotionalLoadout);
+
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -61,6 +65,39 @@ const Create = () => {
   const [lightIntensity, setLightIntensity] = useState(10);
   const [auraAnalysisEnabled, setAuraAnalysisEnabled] = useState(false);
   const [currentDesign, setCurrentDesign] = useState(null);
+
+  // --- NEW: Auto-Load Emotional Items on Mount ---
+  useEffect(() => {
+    // If the store has items (from the Discover page), load them immediately
+    if (emotionalLoadout && emotionalLoadout.length > 0) {
+      console.log("🎁 Loading Emotional Loadout into Scene:", emotionalLoadout);
+      
+      const newSceneModels = emotionalLoadout.map((item, index) => ({
+        instanceId: Date.now() + index, // unique ID
+        position: [
+          (Math.random() - 0.5) * 3, // Random X scatter (-1.5 to 1.5)
+          0, 
+          (Math.random() - 0.5) * 3  // Random Z scatter (-1.5 to 1.5)
+        ], 
+        rotation: [0, 0, 0],
+        scale: item.scale || 1,
+        models: { 
+          file_url: item.file_url, 
+          category: item.category 
+        },
+        modelType: item.category // specific for lighting analysis
+      }));
+
+      // Append to scene
+      setModels(prev => [...prev, ...newSceneModels]);
+      
+      // Notify user
+      setMessages(prev => [
+        ...prev, 
+        { text: `I've added ${emotionalLoadout.length} items that matched your happy vibe!`, sender: "system" }
+      ]);
+    }
+  }, [emotionalLoadout]); 
 
   useEffect(() => {
     const fetchLibrary = async () => {
@@ -113,7 +150,6 @@ const Create = () => {
       case "back-right-corner":
         return [roomBoundary, 0, -roomBoundary];
       default:
-        // Default to a random-ish position in the middle
         return [(Math.random() - 0.5) * 2, 0, (Math.random() - 0.5) * 2];
     }
   };
@@ -124,7 +160,6 @@ const Create = () => {
     const newSceneModels = [];
 
     // 1. Check if the Room Base (White Cube) is missing
-    // We look at the 'models' state to see if 'room_base' is already there.
     const roomBaseExists = models.some(m => m.models.category === 'room_base');
 
     if (!roomBaseExists) {
@@ -229,7 +264,6 @@ const Create = () => {
     });
   };
   // --- END OF UPDATED FUNCTION ---
-  // --- END OF MODIFICATION ---
 
 
   const handleSendMessage = async (e) => {
@@ -241,7 +275,6 @@ const Create = () => {
     setMessages([{ text: userPrompt, sender: "user" }]);
     
     if (userPrompt === "living room") {
-      // ... (This pre-made layout logic is fine, we'll leave it as is)
       const { data, error } = await supabase
         .from("room_layouts")
         .select(`position, rotation, scale, models ( file_url, id, category )`)
@@ -264,7 +297,7 @@ const Create = () => {
         };
         
         setCurrentDesign(layoutDesign);
-        setModels(modelsWithIds); // This replaces the scene, which is correct for a pre-made layout
+        setModels(modelsWithIds); 
       }
     } else {
       // --- 🧠 MODIFICATION: Send 'sceneState' (memory) to the AI 🧠 ---
@@ -300,7 +333,6 @@ const Create = () => {
       models: { file_url: item.file_url, category: item.category },
     };
     
-    // --- MODIFICATION: Use functional update for setModels and setCurrentDesign ---
     setModels((prevModels) => {
       const updatedModels = [...prevModels, newModel];
 
@@ -314,7 +346,6 @@ const Create = () => {
         };
         setCurrentDesign(updatedDesign);
       } else {
-        // This is the first item added, create a new design
         const newDesign = {
           id: 'design_' + Date.now(),
           type: 'manual_addition',
@@ -327,7 +358,6 @@ const Create = () => {
 
       return updatedModels;
     });
-    // --- END OF MODIFICATION ---
     
     if (models.length === 0 && messages.length === 0) {
       setMessages([{ text: "Starting design...", sender: "system" }]);
@@ -337,7 +367,6 @@ const Create = () => {
   const deleteSelectedModel = () => {
     if (!selectedObject) return;
     
-    // --- MODIFICATION: Use functional update for setModels and setCurrentDesign ---
     setModels((prevModels) => {
       const remainingModels = prevModels.filter(
         (model) => model.instanceId !== selectedObject.userData.instanceId
@@ -354,12 +383,11 @@ const Create = () => {
 
       return remainingModels;
     });
-    // --- END OF MODIFICATION ---
     
     setSelectedObject(null);
   };
 
-  // --- NEW: Handle navigation to the discover page ---
+  // --- Handle navigation to the discover page ---
   const handleDiscoverClick = () => {
     navigate('/discover-style');
   };
@@ -386,7 +414,7 @@ const Create = () => {
               <span className="label">New Chat</span>
             </li>
             
-            {/* --- NEW: "Discover My Style" Button --- */}
+            {/* --- "Discover My Style" Button --- */}
             <li className="sidebar-menu-item" onClick={handleDiscoverClick}>
               <span className="label">✨ Discover My Style</span>
             </li>
@@ -466,9 +494,6 @@ const Create = () => {
                   )}
                 </div>
 
-                {/* --- MODIFICATION: Removed the hidden Emotion components --- */}
-                {/* The Emotion components are now on their own page */}
-
                 {selectedObject?.userData?.isLamp && (
                   <div className="light-controls-ui">
                     <label>Light Intensity</label>
@@ -489,12 +514,10 @@ const Create = () => {
                 {auraAnalysisEnabled && (
                   <div className="aura-legend">
                     <h4>Lighting Analysis</h4>
-                    {/* ... (legend items) ... */}
                     <div className="legend-item">
                       <div className="color-box" style={{backgroundColor: '#ff0000'}}></div>
                       <span>Very Bright (&gt;750 lux)</span>
                     </div>
-                    {/* ... all other legend items ... */}
                     <div className="legend-item">
                       <div className="color-box" style={{backgroundColor: '#000066'}}></div>
                       <span>Dark (&lt;50 lux)</span>

@@ -10,7 +10,38 @@
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
 }
+.pulsing-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+  margin-right: 8px;
+}
 
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.recommended-card {
+  border: 2px solid #ffd700; /* Gold border for recommended items */
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.card-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ffd700;
+  color: black;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
 /* --- 1. Start State --- */
 .start-wrapper {
   display: flex;

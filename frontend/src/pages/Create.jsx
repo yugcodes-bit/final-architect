@@ -68,9 +68,36 @@ const Create = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const [user, setUser] = useState(null);
+  // Inside Create component, near other state variables
+  const [userName, setUserName] = useState(null);
 
   const location = useLocation(); // <--- ADD THIS
   const sceneRef = useRef(); // <--- ADD THIS
+
+  // [UPDATED] Check User AND Fetch Profile Name
+  useEffect(() => {
+    const checkUser = async () => {
+      // 1. Get Auth User
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+
+      // 2. If logged in, get the Name from 'profiles'
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile && profile.full_name) {
+          setUserName(profile.full_name);
+        } else {
+          setUserName(user.email.split('@')[0]); // Fallback to email
+        }
+      }
+    };
+    checkUser();
+  }, []);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -92,6 +119,27 @@ const Create = () => {
     }
   }, [location.state]);
   // --------------------------------------------------
+
+
+  const handleNewChat = () => {
+    // 1. Clear the furniture models
+    setModels([]); 
+    
+    // 2. Clear the chat history
+    setMessages([]);
+    
+    // 3. Reset the input
+    setInputValue("");
+    
+    // 4. Reset Design Name to default
+    setDesignName("My New Room");
+    
+    // 5. Clear browser history state (so refresh doesn't bring old room back)
+    window.history.replaceState({}, document.title);
+    
+    // 6. Optional: Reset selection
+    setSelectedObject(null);
+  };
 
  const handleSaveDesign = async () => {
     setIsSaving(true);
@@ -315,7 +363,10 @@ const Create = () => {
     if (!userPrompt) return;
     
     setInputValue("");
-    setMessages([{ text: userPrompt, sender: "user" }]);
+    setMessages((prevMessages) => [
+        ...prevMessages, 
+        { text: userPrompt, sender: "user" }
+      ]);
     
     if (userPrompt === "living room") {
       // ... (This pre-made layout logic is fine, we'll leave it as is)
@@ -458,43 +509,81 @@ const Create = () => {
           <button onClick={toggleSidebar} className="sidebar-toggle">
             {isSidebarCollapsed ? "☰" : "✖"}
           </button>
-          <ul className="sidebar-menu">
-            <li className="sidebar-menu-item">
-              <span className="label">New Chat</span>
-            </li>
-            
-            {/* --- NEW: "Discover My Style" Button --- */}
-            <li className="sidebar-menu-item" onClick={handleDiscoverClick}>
-              <span className="label">✨ Discover My Style</span>
-            </li>
 
-            {/* FIXED HISTORY BUTTON */}
-            <li className="sidebar-menu-item">
-              <Link className="item" to="/history">
-              <span className="label">History</span>
+          {!isSidebarCollapsed && user && (
+            <div className="sidebar-profile-container">
+              <Link to="/profile" className="sidebar-profile-btn">
+                <span className="profile-icon">👤</span> 
+                <span className="profile-text">{userName || "User"}</span>
               </Link>
-            </li>
-
-            {/* FIXED SETTINGS BUTTON */}
-            <li className="sidebar-menu-item">
-              <Link className="item" to="/settings">
-                <span className="label">Settings</span>
-              </Link>
-            </li>
-            <li className="sidebar-menu-item">
-              <Link className="item" to="/">
-                Home
-              </Link>
-            </li>
-            <div className="furniture-library-toggle">
-              <h3
-                onClick={() => setLibraryOpen(true)}
-                className="library-title"
-              >
-                Library
-              </h3>
             </div>
-          </ul>
+          )}
+
+          {/* --- SECTION 1: FIXED TOP (Navigation & Library) --- */}
+          <div className="sidebar-fixed-section">
+            <ul className="sidebar-menu">
+
+              {/* NEW CHAT BUTTON (Now functional) */}
+              <li className="sidebar-menu-item" onClick={handleNewChat}>
+                <span className="label">➕ New Chat</span>
+              </li>
+              
+
+              <li className="sidebar-menu-item">
+                <Link className="item" to="/">
+                  Home
+                </Link>
+              </li>
+            
+              <li className="sidebar-menu-item" onClick={handleDiscoverClick}>
+                <span className="label">✨ Discover My Style</span>
+              </li>
+
+              <li className="sidebar-menu-item">
+                <Link className="item" to="/history">
+                  <span className="label">Saved rooms
+                  </span>
+                </Link>
+              </li>
+
+              <li className="sidebar-menu-item">
+                <Link className="item" to="/settings">
+                  <span className="label">Settings</span>
+                </Link>
+              </li>
+              
+              
+
+              {/* LIBRARY TOGGLE (Last item in fixed section) */}
+              <div className="furniture-library-toggle">
+                <h3 onClick={() => setLibraryOpen(true)} className="library-title">
+                  📚 Open Library
+                </h3>
+              </div>
+            </ul>
+          </div>
+
+          {/* --- SECTION 2: SCROLLABLE BOTTOM (Prompt History) --- */}
+          {!isSidebarCollapsed && (
+            <div className="sidebar-scrollable-section">
+              <span className="history-title">Session History</span>
+              
+              {/* Map through messages to show ONLY user prompts */}
+              {messages
+                .filter(msg => msg.sender === 'user')
+                .map((msg, index) => (
+                  <div key={index} className="history-prompt-item">
+                    "{msg.text}"
+                  </div>
+              ))}
+              
+              {messages.length === 0 && (
+                <div style={{color: '#444', fontSize: '0.8rem', fontStyle: 'italic'}}>
+                  No prompts yet...
+                </div>
+              )}
+            </div>
+          )}
         </div>
         
         <div className="layout-container">

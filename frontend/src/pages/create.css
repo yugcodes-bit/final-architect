@@ -19,31 +19,139 @@
     height: 100vh;
 }
 
+/* src/pages/create.css */
+
 .sidebar {
-    width: 250px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
-    transition: width 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    color: white;
+  width: 260px;
+  
+  /* --- TRANSLUCENT GLASS EFFECT --- */
+  background-color: rgba(36, 35, 35, 0.65); /* 65% opacity black */
+  backdrop-filter: blur(15px);          /* Blurs the video behind it */
+  -webkit-backdrop-filter: blur(15px);  /* For Safari support */
+  border-right: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+  
+  /* Layout Properties */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+  z-index: 100;
+  overflow: hidden;
+  transition: width 0.3s ease;
+  color: white;
+}
+
+/* src/pages/create.css */
+
+
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+/* 2. The Fixed Upper Section (Buttons + Library) */
+.sidebar-fixed-section {
+  flex: 0 0 auto; /* Do not grow, do not shrink */
+  padding-top: 60px; /* Space for toggle button */
+  border-bottom: 1px solid #222; /* Separator line */
+}
+
+/* 3. The Scrollable Bottom Section (Prompt History) */
+.sidebar-scrollable-section {
+  flex: 1; /* Take up all remaining space */
+  overflow-y: auto; /* Enable scrolling ONLY here */
+  padding: 15px;
+  
+  /* Scrollbar Styling for Webkit (Chrome/Safari/Edge) */
+  scrollbar-width: thin;
+  scrollbar-color: #333 #000;
+}
+
+.sidebar-scrollable-section::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scrollable-section::-webkit-scrollbar-track {
+  background: #000;
+}
+.sidebar-scrollable-section::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 10px;
+}
+
+/* src/pages/create.css */
+
+/* 1. When sidebar is collapsed, hide the menu content */
+.sidebar.collapsed .sidebar-fixed-section,
+.sidebar.collapsed .sidebar-scrollable-section {
+  opacity: 0;           /* Make it invisible */
+  visibility: hidden;   /* Remove it from being clickable */
+  transition: opacity 0.2s ease, visibility 0.2s ease; /* Smooth fade out */
+  white-space: nowrap;  /* Prevent text from wrapping weirdly while fading */
+}
+
+/* 2. Ensure the toggle button stays visible and positioned correctly */
+.sidebar.collapsed .sidebar-toggle {
+  opacity: 1;
+  visibility: visible;
+  /* Optional: Center the button if you want it centered when closed */
+  /* margin-left: 12px; */ 
+}
+
+/* 4. Prompt History Item Styling */
+.history-prompt-item {
+  background: #111;
+  border: 1px solid #333;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #ccc;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 2px solid #262828; /* Neon accent */
+}
+
+.history-prompt-item:hover {
+  background: #222;
+  color: white;
+}
+
+.history-title {
+  font-size: 0.8rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: block;
 }
 
 .sidebar.collapsed {
     width: 80px;
 }
 
+/* src/pages/create.css */
+
 .sidebar-toggle {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    margin-bottom: 2rem;
-    text-align: left;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  
+  /* --- MOVE IT RIGHT --- */
+  margin-left: 15px; /* Adjust this number to move it more/less */
+  
+  /* Optional: Add some top margin if it's too close to the roof */
+  margin-top: 10px; 
+  
+  /* Ensure it doesn't span the whole width */
+  align-self: flex-start; 
+  transition: transform 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  color: #00f3ff; /* Neon hover effect */
+  transform: scale(1.1);
 }
 
 .sidebar-menu {
@@ -1017,4 +1125,55 @@
 .save-button:disabled {
   background: #555;
   cursor: not-allowed;
+}
+
+/* src/pages/create.css */
+
+/* Container to handle spacing */
+.sidebar-profile-container {
+  padding: 10px 15px;
+  margin-bottom: -0px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* The Neon Button Style */
+.sidebar-profile-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 15px;
+  
+  /* NEON STYLING (Matches Home Page) */
+  color: #f5f6f6;
+  font-weight: 700;
+  border: 1px solid #ebefef;
+  background: rgba(0, 243, 255, 0.05);
+  border-radius: 20px;
+  text-decoration: none;
+  
+  /* Text handling */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-profile-btn:hover {
+  background: rgba(0, 243, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.profile-icon {
+  font-size: 1.1rem;
+}
+
+.profile-text {
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+/* Simple fade animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }

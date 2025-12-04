@@ -1,24 +1,38 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import Create from "./pages/Create";
-import Signup from "./pages/Signup";
-// --- NEW: Import the DiscoverStyle page ---
-import DiscoverStyle from "./pages/DiscoverStyle";
-import './app.css';
+// src/App.jsx
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 
-function App() { 
+// 1. IMPORT YOUR PAGES HERE
+import Home from './pages/Home';
+import Create from './pages/Create';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import DiscoverStyle from './pages/DiscoverStyle';
+
+// 2. IMPORT THE NEW HISTORY & SETTINGS PAGES
+// (Make sure the file names match exactly what is in your folder)
+import History from './pages/History'; 
+import Settings from './pages/Settings';
+
+import Profile from './pages/Profile';
+
+function App() {
   return (
-    <Router>
+    <div className="App">
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/create" element={<Create />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/create" element={<Create />} />
-        {/* --- NEW: Add the route for our new page --- */}
         <Route path="/discover-style" element={<DiscoverStyle />} />
+        
+        {/* 3. ADD THE ROUTES FOR THE NEW PAGES */}
+        <Route path="/history" element={<History />} />
+        <Route path="/settings" element={<Settings />} />
+
+        <Route path="/profile" element={<Profile />} />
       </Routes>
-    </Router>
+    </div>
   );
 }
 

@@ -416,7 +416,7 @@ const Create = () => {
             
             {/* --- "Discover My Style" Button --- */}
             <li className="sidebar-menu-item" onClick={handleDiscoverClick}>
-              <span className="label">✨ Discover My Style</span>
+              <span className="label">Discover My Style</span>
             </li>
 
             <li className="sidebar-menu-item">

@@ -1,14 +1,16 @@
-// COMPLETE EmotionDetector.jsx - WITH DESIGN INTEGRATION & CDN
+// COMPLETE EmotionDetector.jsx - MERGED VERSION
 import React, { useRef, useEffect, useState } from 'react';
 import { emotionLogger } from '../utils/EmotionLogger';
 import './EmotionDetector.css';
 
-// We'll load face-api.js from CDN
+// Global flag to prevent re-loading scripts across re-renders
 let faceapiLoaded = false;
 
-const EmotionDetector = ({ onEmotionDetected, currentDesign = null }) => {
+const EmotionDetector = ({ onEmotionDetected, currentDesign = null, onModelsLoaded }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  
+  // State
   const [emotion, setEmotion] = useState('neutral');
   const [isActive, setIsActive] = useState(false);
   const [webcamError, setWebcamError] = useState(null);
@@ -18,21 +20,27 @@ const EmotionDetector = ({ onEmotionDetected, currentDesign = null }) => {
     expressions: {}
   });
 
-  // Load FaceAPI from CDN
+  // --- 1. LOAD FACE API & MODELS ---
   useEffect(() => {
     const loadFaceAPI = async () => {
-      if (faceapiLoaded) return;
+      // If already loaded globally, just notify and return
+      if (faceapiLoaded && window.faceapi) {
+        setModelsLoaded(true);
+        if (onModelsLoaded) onModelsLoaded();
+        return;
+      }
 
       try {
         // Load face-api.js from CDN
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js';
+        script.async = true;
+        
         script.onload = async () => {
           console.log('✅ FaceAPI.js loaded from CDN');
           
-          // Load models from our public folder
+          // Load models from public folder
           const MODEL_URL = '/models';
-          
           await Promise.all([
             window.faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
             window.faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
@@ -41,6 +49,9 @@ const EmotionDetector = ({ onEmotionDetected, currentDesign = null }) => {
           setModelsLoaded(true);
           faceapiLoaded = true;
           console.log('✅ FaceAPI models loaded successfully');
+          
+          // ✅ Notify Parent (DiscoverStyle) that we are ready
+          if (onModelsLoaded) onModelsLoaded();
         };
         
         document.head.appendChild(script);
@@ -51,83 +62,24 @@ const EmotionDetector = ({ onEmotionDetected, currentDesign = null }) => {
     };
 
     loadFaceAPI();
-  }, []);
+  }, [onModelsLoaded]);
 
-  // Start/stop emotion sessions when design changes
+  // --- 2. AUTO-START WEBCAM ---
+  // When models load, automatically attempt to start the camera
+  useEffect(() => {
+    if (modelsLoaded && !isActive) {
+      startWebcam();
+    }
+  }, [modelsLoaded]);
+
+  // --- 3. SESSION LOGGING MANAGEMENT ---
   useEffect(() => {
     if (currentDesign && isActive) {
       emotionLogger.startSession(currentDesign.id, currentDesign.type);
     }
   }, [currentDesign, isActive]);
 
-  // REAL EMOTION DETECTION WITH DESIGN INTEGRATION
-  const detectEmotions = async () => {
-    if (!videoRef.current || !modelsLoaded || !window.faceapi) return;
-
-    try {
-      const detection = await window.faceapi
-        .detectSingleFace(videoRef.current, new window.faceapi.TinyFaceDetectorOptions())
-        .withFaceExpressions();
-
-      if (detection) {
-        const expressions = detection.expressions;
-        const dominantEmotion = Object.keys(expressions).reduce((a, b) => 
-          expressions[a] > expressions[b] ? a : b
-        );
-        
-        const confidence = expressions[dominantEmotion];
-        
-        // Filter out low-confidence detections
-        if (confidence > 0.6) {
-          const emotionData = {
-            emotion: dominantEmotion,
-            confidence: confidence,
-            timestamp: Date.now(),
-            expressions: expressions
-          };
-
-          setEmotion(dominantEmotion);
-          setDetectionStats({
-            confidence: Math.round(confidence * 100),
-            expressions: expressions
-          });
-
-          // LOG EMOTION WITH DESIGN CONTEXT
-          const designContext = {
-            designId: currentDesign?.id || 'unknown',
-            designType: currentDesign?.type || 'unknown',
-            elements: currentDesign?.elements || [],
-            timestamp: Date.now()
-          };
-
-          emotionLogger.logEmotion(emotionData, designContext);
-
-          if (onEmotionDetected) {
-            onEmotionDetected(emotionData);
-          }
-        }
-        
-        // Draw face detection box
-        if (canvasRef.current) {
-          const displaySize = {
-            width: videoRef.current.videoWidth,
-            height: videoRef.current.videoHeight
-          };
-          window.faceapi.matchDimensions(canvasRef.current, displaySize);
-          
-          const resizedDetection = window.faceapi.resizeResults(detection, displaySize);
-          const ctx = canvasRef.current.getContext('2d');
-          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-          
-          window.faceapi.draw.drawDetections(canvasRef.current, resizedDetection);
-          window.faceapi.draw.drawFaceExpressions(canvasRef.current, resizedDetection);
-        }
-      }
-    } catch (error) {
-      console.error('Error in emotion detection:', error);
-    }
-  };
-
+  // --- 4. START WEBCAM FUNCTION ---
   const startWebcam = async () => {
     try {
       if (!modelsLoaded) {
@@ -143,11 +95,6 @@ const EmotionDetector = ({ onEmotionDetected, currentDesign = null }) => {
         videoRef.current.srcObject = stream;
         setIsActive(true);
         setWebcamError(null);
-        
-        // Start REAL emotion detection loop
-        const detectionInterval = setInterval(detectEmotions, 500);
-        
-        return () => clearInterval(detectionInterval);
       }
     } catch (err) {
       console.error('Error accessing webcam:', err);
@@ -155,6 +102,7 @@ const EmotionDetector = ({ onEmotionDetected, currentDesign = null }) => {
     }
   };
 
+  // --- 5. STOP WEBCAM FUNCTION ---
   const stopDetection = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach(track => track.stop());
@@ -166,6 +114,84 @@ const EmotionDetector = ({ onEmotionDetected, currentDesign = null }) => {
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }
   };
+
+  // --- 6. DETECTION LOOP (Run whenever Active) ---
+  useEffect(() => {
+    if (!isActive || !modelsLoaded || !videoRef.current) return;
+
+    const detectEmotions = async () => {
+      if (!videoRef.current || videoRef.current.paused || videoRef.current.ended) return;
+
+      // Ensure video is playing and has dimensions
+      if (videoRef.current.readyState === 4) {
+        try {
+          const detection = await window.faceapi
+            .detectSingleFace(videoRef.current, new window.faceapi.TinyFaceDetectorOptions())
+            .withFaceExpressions();
+
+          if (detection) {
+            const expressions = detection.expressions;
+            const dominantEmotion = Object.keys(expressions).reduce((a, b) => 
+              expressions[a] > expressions[b] ? a : b
+            );
+            
+            const confidence = expressions[dominantEmotion];
+            
+            // Filter out low-confidence detections
+            if (confidence > 0.6) {
+              const emotionData = {
+                emotion: dominantEmotion,
+                confidence: confidence,
+                timestamp: Date.now(),
+                expressions: expressions
+              };
+
+              setEmotion(dominantEmotion);
+              setDetectionStats({
+                confidence: Math.round(confidence * 100),
+                expressions: expressions
+              });
+
+              // Log internally
+              const designContext = {
+                designId: currentDesign?.id || 'unknown',
+                designType: currentDesign?.type || 'unknown',
+                elements: currentDesign?.elements || [],
+                timestamp: Date.now()
+              };
+              emotionLogger.logEmotion(emotionData, designContext);
+
+              // Notify parent
+              if (onEmotionDetected) {
+                onEmotionDetected(emotionData);
+              }
+            }
+            
+            // Draw face detection box
+            if (canvasRef.current) {
+              const displaySize = {
+                width: videoRef.current.videoWidth,
+                height: videoRef.current.videoHeight
+              };
+              window.faceapi.matchDimensions(canvasRef.current, displaySize);
+              
+              const resizedDetection = window.faceapi.resizeResults(detection, displaySize);
+              const ctx = canvasRef.current.getContext('2d');
+              ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+              
+              window.faceapi.draw.drawDetections(canvasRef.current, resizedDetection);
+              window.faceapi.draw.drawFaceExpressions(canvasRef.current, resizedDetection);
+            }
+          }
+        } catch (error) {
+          // Silent catch to prevent console spam loops
+        }
+      }
+    };
+
+    const intervalId = setInterval(detectEmotions, 500); // Run every 500ms
+    return () => clearInterval(intervalId);
+  }, [isActive, modelsLoaded, onEmotionDetected, currentDesign]);
 
   // Format emotion for display
   const formatEmotion = (emotion) => {
@@ -198,6 +224,7 @@ const EmotionDetector = ({ onEmotionDetected, currentDesign = null }) => {
               ref={videoRef}
               autoPlay
               muted
+              playsInline
               className="webcam-video"
             />
             <canvas 

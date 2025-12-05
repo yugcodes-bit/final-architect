@@ -265,10 +265,32 @@ const SafeTransformControls = ({ object, mode, onMouseUp }) => {
   );
 };
 
+// --- ADD THIS MISSING COMPONENT ---
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Failed to load 3D model:", error);
+  }
+  render() {
+    if (this.state.hasError) return null; 
+    return this.props.children;
+  }
+}
+// ----------------------------------
+
+// export const Scene = forwardRef... (Your existing code follows here)
+
 // --- MODIFIED SCENE COMPONENT ---
 // Now using forwardRef to allow the parent (Create.jsx) to call functions inside here
 export const Scene = forwardRef(({ 
   models = [], 
+  selectionTarget,
   transformMode, 
   selectedObject, 
   setSelectedObject, 
@@ -324,13 +346,16 @@ export const Scene = forwardRef(({
       )}
       
       <React.Suspense fallback={null}>
-        {models.map((modelData) => (
-          <Model
-            key={modelData.instanceId}
-            modelData={modelData}
-            setSelectedObject={setSelectedObject}
-            lightIntensity={lightIntensity}
-          />
+       {models.map((modelData) => (
+          <ErrorBoundary key={modelData.instanceId}>
+            <Model
+              modelData={modelData}
+              // 👇 PASS IT DOWN 👇
+              selectionTarget={selectionTarget} 
+              setSelectedObject={setSelectedObject}
+              lightIntensity={lightIntensity}
+            />
+          </ErrorBoundary>
         ))}
       </React.Suspense>
 

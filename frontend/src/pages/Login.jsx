@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { Link, useNavigate } from 'react-router-dom';
 import './signup.css'; // We reuse the CSS from the signup page
+import landing_video from "../assets/landing_page_vid.mp4";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -39,6 +40,10 @@ const Login = () => {
 
   return (
     <div className="login-page">
+       <div className='bg-video'>
+                           <video autoPlay loop muted playsInline src={landing_video}>
+                           </video>
+                </div>
       <Link to="/" className="back-home-btn">← Back Home</Link>
       <div className="login-container">
         <h2>Welcome Back</h2>

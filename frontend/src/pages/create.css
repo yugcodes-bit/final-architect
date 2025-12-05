@@ -150,7 +150,7 @@
 }
 
 .sidebar-toggle:hover {
-  color: #00f3ff; /* Neon hover effect */
+  color: #ffcc70; /* Neon hover effect */
   transform: scale(1.1);
 }
 
@@ -162,7 +162,7 @@
 
 .sidebar-menu-item {
 
-    padding: 1rem;
+    padding: 1.25rem;
     display: flex;
     align-items: center;
     cursor: pointer;

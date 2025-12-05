@@ -54,7 +54,13 @@ const Home = () => {
   // Existing Scroll Logic
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY;      
+      const scrollY = window.scrollY;
+      
+      // DEBUG: Open your browser console (F12). 
+      // If you don't see numbers changing when you scroll, 
+      // then 'window' is not the thing scrolling (see point #1 above).
+      console.log("Current Scroll:", scrollY); 
+
       if (scrollY >= 0 && scrollY < 450) {
         setIsFixed(true);   
       } else {
@@ -85,7 +91,7 @@ const Home = () => {
                   overflow: "hidden",
 
                 }}>
-                  👤 {userName}
+                Profile
                 </Link>
               </li>
             ) : (

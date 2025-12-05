@@ -1,19 +1,25 @@
 /* Paste this into src/pages/login.css AND src/pages/signup.css */
 
 :root {
-  --neon-cyan: #00f3ff;
-  --neon-purple: #bc13fe;
+  --neon-cyan: #e1c94e ;  
+  --neon-purple: #eccd30;
   --bg-dark: #050505;
 }
-
+.bg-video {
+  position: absolute;
+  top: 0;
+  left: 0%;
+  width: 100%;
+  height: 138.9vh;
+  object-fit: cover;
+  z-index: -1;
+  overflow: hidden;
+}
 /* 1. The Canvas - Deep Dark Space (Same as Profile) */
 .login-page {
   height: 100vh;
   width: 100vw;
-  background-color: var(--bg-dark);
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(188, 19, 254, 0.08) 0%, transparent 40%);
+  background-color: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -51,26 +57,16 @@
 
 /* 3. The Form "Island" - Modeled after Profile Header */
 .login-container {
-  background: rgba(20, 20, 20, 0.6);
+  background: transparent;
   backdrop-filter: blur(20px);
-  padding: 50px 45px;
-  border-radius: 24px;
+  padding: 100px 45px;
   width: 100%;
   max-width: 400px;
-  
+  margin-right: 10vw;
   /* Neon Borders & Glow */
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-    
   text-align: center;
   transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
-.login-container:hover {
-  transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Title Styling */
@@ -135,13 +131,12 @@
   cursor: pointer;
   margin-top: 15px;
   transition: all 0.3s ease;
-  box-shadow: 0 0 10px rgba(0, 243, 255, 0.05);
+  
 }
 
 .login-button:hover {
-  background: var(--neon-cyan);
+  background: rgb(239, 239, 83);
   color: #000;
-  box-shadow: 0 0 40px rgba(0, 243, 255, 0.5);
   transform: translateY(-2px);
 }
 

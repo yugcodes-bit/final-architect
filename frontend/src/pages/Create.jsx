@@ -2,6 +2,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./create.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  Home,
+  AddComment,
+  Apps,
+  History,
+  Settings,
+  LibraryBooks
+} from "@mui/icons-material";
+
 
 // Components
 import background_video from "../assets/landing_page_vid.mp4";
@@ -492,17 +501,17 @@ const Create = () => {
           <div className="sidebar-fixed-section">
             <ul className="sidebar-menu">
               <li className="sidebar-menu-item" onClick={handleNewChat}>
-                <span className="label">➕ New Chat</span>
+                <span className="label"><AddComment /> New Chat</span>
               </li>
               
               <li className="sidebar-menu-item" onClick={handleDiscoverClick}>
-                <span className="label">✨ Discover My Style</span>
+                <span className="label"><Apps /> Discover My Style</span>
               </li>
 
 
               <Link className="item" to="/history">
               <li className="sidebar-menu-item">
-                  <span className="label">History</span>
+                  <span className="label"> <History /> History</span>
                 
               </li>
               </Link>
@@ -510,7 +519,7 @@ const Create = () => {
               
                 <Link className="item" to="/settings">
                   <li className="sidebar-menu-item">
-                  <span className="label">Settings</span>
+                  <span className="label"> <Settings /> Settings</span>
                
               </li>
                </Link>
@@ -518,14 +527,14 @@ const Create = () => {
               
                 <Link className="item" to="/">
                 <li className="sidebar-menu-item">
-                  Home
+                  <Home /> Home
                
               </li>
                </Link>
 
               <div className="furniture-library-toggle">
                 <h3 onClick={() => setLibraryOpen(true)} className="library-title">
-                  📚 Open Library
+                  <LibraryBooks /> Open Library
                 </h3>
               </div>
             </ul>

@@ -590,7 +590,7 @@ const Create = () => {
                       placeholder="Enter design name"
                     />
                     <button onClick={handleSaveDesign} disabled={isSaving} className="save-button">
-                      {isSaving ? "Saving..." : "💾 Save Room"}
+                      {isSaving ? "Saving..." : "Save"}
                     </button>
                   </div>
 

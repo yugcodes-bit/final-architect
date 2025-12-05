@@ -362,56 +362,6 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Optional: adds a subtle glow */
 }
 
-
-/* Styles for the Transform Controls UI */
-/* --- UPDATED TRANSFORM CONTROLS (Glass + Neon) --- */
-.transform-controls-ui {
-  position: absolute;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  
-  /* Glass Container */
-  background: rgba(10, 10, 10, 0.85); 
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 8px;
-  z-index: 100;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.transform-controls-ui button {
-  background: rgba(255, 255, 255, 0.05);
-  color: #aaa;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: 'Poppins', sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  transition: all 0.3s ease;
-}
-
-.transform-controls-ui button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-}
-
-/* Active State - NEON CYAN */
-.transform-controls-ui button.active {
-  background: rgba(0, 243, 255, 0.1);
-  color: #00f3ff;
-  border-color: #00f3ff;
-  box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
-}
 /* Styles for the Furniture Library */
 .furniture-library {
   margin-top: 20px;
@@ -459,25 +409,7 @@
 }
 
 /* Style for the delete button */
-/* --- UPDATED DELETE BUTTON (Red Warning) --- */
-.delete-button {
-  background: rgba(255, 68, 68, 0.1) !important;
-  color: #ff4444 !important;
-  border: 1px solid #ff4444 !important;
-  padding: 8px 16px !important;
-  margin-left: 10px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-family: 'Poppins', sans-serif;
-  transition: all 0.3s ease;
-}
 
-.delete-button:hover {
-  background: #ff4444 !important;
-  color: white !important;
-  box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
-  transform: translateY(-2px);
-}
 
 /* --- NEW CSS FOR ADVANCED LIBRARY --- */
 
@@ -623,23 +555,94 @@
   position: relative;
 }
 
+/* src/pages/create.css */
+
+/* --- PROFESSIONAL LIGHTING WIDGET --- */
 .light-controls-ui {
   position: absolute;
-  top: 60px; /* Below the transform controls */
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 8px;
-  padding: 8px 12px;
+  top: 20px;
+  right: 20px; /* Moves it to the top right corner */
   z-index: 100;
+  
+  /* Glass Card Styling */
+  background: rgba(15, 15, 15, 0.9);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 15px 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  
+  /* Layout */
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
-  align-items: center;
-  color: white;
+  min-width: 200px;
+  
+  /* Animation: Slide in from right */
+  animation: slideInRight 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Label with Icon */
 .light-controls-ui label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  color: #ccc;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Add a Sun Icon via CSS (Simple trick) */
+.light-controls-ui label::before {
+  content: "☀"; /* Sun symbol */
+  color: #ffeb3b; /* Yellow */
+  font-size: 1.1rem;
+}
+
+/* --- CUSTOM RANGE SLIDER (The "Fun" Part) --- */
+.light-controls-ui input[type=range] {
+  appearance: none; /* Remove default styles */
+  width: 100%;
+  background: transparent;
+}
+
+.light-controls-ui input[type=range]:focus {
+  outline: none;
+}
+
+/* The Track */
+.light-controls-ui input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: linear-gradient(90deg, #444, #ffeb3b); /* Dark to Light gradient */
+  border-radius: 10px;
+}
+
+/* The Thumb (Handle) */
+.light-controls-ui input[type=range]::-webkit-slider-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -6px; /* Centers thumb on track */
+  box-shadow: 0 0 10px rgba(255, 235, 59, 0.5); /* Glow */
+  transition: transform 0.1s;
+}
+
+.light-controls-ui input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #fff9c4;
 }
 /* --- existing styles from your project --- */
 /* (Assuming basic layout styles for sidebar, etc. are here) */
@@ -711,10 +714,7 @@
 .transform-controls-ui button.active {
   background-color: #5a5a5a;
 }
-.delete-button {
-  background-color: #b92f2f !important;
-  margin-left: 10px;
-}
+
 .library-panel {
   width: 280px;
   height: 100vh;
@@ -863,10 +863,7 @@
 .transform-controls-ui button.active {
   background-color: #5a5a5a;
 }
-.delete-button {
-  background-color: #b92f2f !important;
-  margin-left: 10px;
-}
+
 .library-panel {
   width: 280px;
   height: 100vh;
@@ -928,63 +925,6 @@
   padding: 10px 20px;
   cursor: pointer;
   color: #ddd;
-}
-/* Styles for the Aura Button */
-/* Add to create.css */
-/* Professional Aura Analysis Toggle */
-.aura-button {
-  background: rgba(188, 19, 254, 0.1) !important; /* Override gradients */
-  color: #bc13fe !important;
-  border: 1px solid #bc13fe !important;
-  padding: 8px 16px !important;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
-  font-family: 'Poppins', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-}
-
-.aura-button:hover {
-  background: #bc13fe !important;
-  color: white !important;
-  box-shadow: 0 0 20px rgba(188, 19, 254, 0.6);
-  transform: translateY(-2px);
-}
-
-.aura-button.active {
-  background: #bc13fe !important;
-  color: white !important;
-  box-shadow: 0 0 25px rgba(188, 19, 254, 0.8);
-}
-
-.aura-button.active:hover {
-    box-shadow: 0 6px 25px rgba(245, 87, 108, 0.5);
-}
-/* Aura Analysis Legend */
-/* Aura Analysis Legend */
-.aura-legend {
-  position: absolute;
-  top: 80px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 15px;
-  border-radius: 8px;
-  font-size: 12px;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  max-width: 200px;
-}
-
-.aura-legend h4 {
-  margin: 0 0 10px 0;
-  color: #fff;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  padding-bottom: 5px;
 }
 
 .legend-item {
@@ -1120,58 +1060,7 @@
   font-size: 1.2rem;
 }
 
-.save-controls {
-  display: flex;
-  gap: 10px;
-  margin-left: 15px;
-  padding-left: 15px;
-  border-left: 1px solid rgba(255, 255, 255, 0.2); /* Separator line */
-  align-items: center;
-}
 
-.design-name-input {
-  background: rgba(0, 0, 0, 0.5) !important;
-  border: 1px solid #444 !important;
-  color: white !important;
-  padding: 8px 12px !important;
-  border-radius: 6px !important;
-  width: 140px !important;
-  font-family: 'Poppins', sans-serif;
-  transition: border-color 0.3s;
-}
-
-.design-name-input:focus {
-  border-color: #00f3ff !important;
-  outline: none;
-}
-
-.save-button {
-  background: rgba(40, 167, 69, 0.15) !important;
-  color: #28a745 !important;
-  border: 1px solid #28a745 !important;
-  padding: 8px 16px !important;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 700;
-  font-family: 'Poppins', sans-serif;
-  transition: all 0.3s ease;
-}
-
-.save-button:hover {
-  background: #28a745 !important;
-  color: white !important;
-  box-shadow: 0 0 15px rgba(40, 167, 69, 0.5);
-  transform: translateY(-2px);
-}
-
-.save-button:disabled {
-  background: transparent !important;
-  border-color: #555 !important;
-  color: #555 !important;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
 
 /* src/pages/create.css */
 
@@ -1280,17 +1169,74 @@
   
   /* Shrink the top control bar */
   .transform-controls-ui {
-    top: 5px;
-    padding: 2px;
-    transform: translateX(-50%) scale(0.85); /* Shrink to 85% size */
-    width: max-content;
-  }
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
   
-  .transform-controls-ui button {
-    padding: 5px 10px;
-    font-size: 0.8rem;
-  }
+  /* Layout: Horizontal row with gaps between "Islands" */
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Spacing between the groups */
+  
+  /* Remove the single background box */
+  background: transparent; 
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
 
+/* --- 2. SHARED BUTTON STYLES --- */
+.transform-controls-ui button {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- 3. GROUP 1: TOOLS (Move, Rotate, Scale) --- */
+/* We visually join these 3 buttons into one "Segmented Control" */
+
+/* Move Button (First) */
+.transform-controls-ui button:nth-child(1) {
+  background: rgba(20, 20, 20, 0.9);
+  padding: 10px 16px;
+  border-radius: 12px 0 0 12px; /* Round Left only */
+  border-right: none; /* Merge with next */
+}
+
+/* Rotate Button (Middle) */
+.transform-controls-ui button:nth-child(2) {
+  background: rgba(20, 20, 20, 0.9);
+  padding: 10px 16px;
+  border-radius: 0; /* Square */
+  border-right: none; /* Merge with next */
+}
+
+/* Scale Button (Last of group) */
+.transform-controls-ui button:nth-child(3) {
+  background: rgba(20, 20, 20, 0.9);
+  padding: 10px 16px;
+  border-radius: 0 12px 12px 0; /* Round Right only */
+}
+
+/* Hover & Active for Tools */
+.transform-controls-ui button:nth-child(-n+3):hover {
+  background: rgba(50, 50, 50, 0.9);
+  color: white;
+}
+
+.transform-controls-ui button:nth-child(-n+3).active {
+  background: #ffffff;
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
   /* Shrink the chat bar */
   .chat-input-area {
     bottom: 10px;
@@ -1435,4 +1381,174 @@
   .typewriter-text {
     font-size: 1.2rem; /* Smaller intro text */
   }
+}
+
+/* =========================================
+   PROFESSIONAL UI OVERRIDES (Floating Islands)
+   ========================================= */
+
+/* --- 1. MAIN CONTAINER (Invisible Wrapper) --- */
+.transform-controls-ui {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  
+  /* Layout: Horizontal row with gaps between "Islands" */
+  display: flex;
+  align-items: center;
+  gap: 16px; 
+  
+  /* Remove background/border to let buttons float */
+  background: transparent; 
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* --- 2. SHARED BUTTON STYLES --- */
+.transform-controls-ui button {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- 3. ISLAND 1: TOOLS (Move, Rotate, Scale merged) --- */
+
+/* Move (First) - Round Left corners only */
+.transform-controls-ui button:nth-child(1) {
+  background: rgba(20, 20, 20, 0.9);
+  padding: 10px 16px;
+  border-radius: 12px 0 0 12px; 
+  border-right: none; 
+}
+
+/* Rotate (Middle) - Square corners */
+.transform-controls-ui button:nth-child(2) {
+  background: rgba(20, 20, 20, 0.9);
+  padding: 10px 16px;
+  border-radius: 0;
+  border-right: none;
+}
+
+/* Scale (Last) - Round Right corners only */
+.transform-controls-ui button:nth-child(3) {
+  background: rgba(20, 20, 20, 0.9);
+  padding: 10px 16px;
+  border-radius: 0 12px 12px 0;
+}
+
+/* Hover & Active for Tools */
+.transform-controls-ui button:nth-child(-n+3):hover {
+  background: rgba(50, 50, 50, 0.9);
+  color: white;
+}
+
+.transform-controls-ui button:nth-child(-n+3).active {
+  background: #ffffff; /* High contrast active state */
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* --- 4. ISLAND 2: AURA BUTTON (Separate Pill) --- */
+.aura-button {
+  background: rgba(10, 10, 10, 0.8) !important;
+  color: #ddd !important;
+  padding: 10px 20px !important;
+  border-radius: 30px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  margin-left: 0 !important;
+}
+
+.aura-button:hover {
+  background: rgba(40, 40, 40, 0.9) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.aura-button.active {
+  /* Professional Indigo Gradient */
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 5px 20px rgba(118, 75, 162, 0.5);
+}
+
+/* --- 5. ISLAND 3: SAVE CONTROLS (Unified Input + Button) --- */
+.save-controls {
+  display: flex;
+  align-items: center;
+  background: rgba(10, 10, 10, 0.8);
+  padding: 4px;
+  padding-right: 6px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-left: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.1); 
+}
+
+.design-name-input {
+  background: transparent !important;
+  border: none !important;
+  color: white !important;
+  padding: 8px 15px !important;
+  font-size: 0.9rem;
+  width: 140px !important;
+  outline: none;
+}
+
+.save-button {
+  background: #676767 !important; /* Matte Green */
+  color: white !important;
+  border: none !important;
+  border-radius: 20px !important;
+  padding: 8px 18px !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.save-button:hover {
+  background: #434343 !important;
+  transform: scale(1.05);
+}
+
+/* --- 6. ISLAND 4: DELETE (Floating Warning) --- */
+.delete-button {
+  background: rgba(20, 0, 0, 0.8) !important;
+  color: #ff5252 !important;
+  border: 1px solid rgba(255, 82, 82, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 10px 16px !important;
+  margin-left: 10px;
+  font-weight: 600;
+}
+
+.delete-button:hover {
+  background: #ff5252 !important;
+  color: white !important;
+  box-shadow: 0 5px 20px rgba(255, 82, 82, 0.4);
+  transform: translateY(-2px);
+}
+
+/* --- 7. CHAT SUBMIT (Clean Circle/Pill) --- */
+.chat-input-form .submit {
+  background: #ffffff;
+  color: #000000;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
 }

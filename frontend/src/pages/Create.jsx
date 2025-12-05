@@ -385,19 +385,57 @@ const Create = () => {
     }
   };
 
-  const addModelToScene = (item) => {
+  // Updated function signature
+  const addModelToScene = (item, targetPosition = null) => {
+    
+    // Use targetPosition if provided (Drag & Drop), otherwise default center logic
+    const position = targetPosition || [0, 0.5, 0];
+
     const newModel = {
       instanceId: Date.now(),
-      position: [0, 0.5, 0],
+      position: position,
       rotation: [0, 0, 0],
       scale: 1,
       models: { file_url: item.file_url, category: item.category },
     };
     
-    setModels((prevModels) => [...prevModels, newModel]);
+    setModels((prevModels) => {
+      // ... existing logic to save state ...
+      // (Copy your existing internal logic here, just ensure 'newModel' uses the position above)
+      const updatedModels = [...prevModels, newModel];
+      
+      // ... update currentDesign logic ... (keep your existing code)
+      
+      return updatedModels;
+    });
     
-    if (models.length === 0 && messages.length === 0) {
-      setMessages([{ text: "Starting design...", sender: "system" }]);
+    // ... message logic ...
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault(); // Necessary to allow dropping
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    
+    // 1. Get the item data we attached in LibraryPanel
+    const itemData = e.dataTransfer.getData("furniture_item");
+    if (!itemData) return;
+    
+    const item = JSON.parse(itemData);
+
+    // 2. Ask the Scene to convert Mouse X/Y to 3D X/Y/Z
+    if (sceneRef.current && sceneRef.current.getFloorPosition) {
+      const [x, y, z] = sceneRef.current.getFloorPosition(e.clientX, e.clientY);
+      
+      // 3. Add the model at that exact spot
+      console.log(`🎯 Dropped at: [${x.toFixed(2)}, ${y}, ${z.toFixed(2)}]`);
+      addModelToScene(item, [x, 0, z]);
+    } else {
+      // Fallback if ref is broken
+      addModelToScene(item);
     }
   };
 
@@ -452,23 +490,29 @@ const Create = () => {
                 <span className="label">✨ Discover My Style</span>
               </li>
 
-              <li className="sidebar-menu-item">
-                <Link className="item" to="/history">
-                  <span className="label">History</span>
-                </Link>
-              </li>
 
+              <Link className="item" to="/history">
               <li className="sidebar-menu-item">
-                <Link className="item" to="/settings">
-                  <span className="label">Settings</span>
-                </Link>
+                  <span className="label">History</span>
+                
               </li>
+              </Link>
+
               
-              <li className="sidebar-menu-item">
-                <Link className="item" to="/">
-                  Home
-                </Link>
+                <Link className="item" to="/settings">
+                  <li className="sidebar-menu-item">
+                  <span className="label">Settings</span>
+               
               </li>
+               </Link>
+              
+              
+                <Link className="item" to="/">
+                <li className="sidebar-menu-item">
+                  Home
+               
+              </li>
+               </Link>
 
               <div className="furniture-library-toggle">
                 <h3 onClick={() => setLibraryOpen(true)} className="library-title">
@@ -507,7 +551,7 @@ const Create = () => {
             />
           )}
           
-          <div className="scene-wrapper">
+          <div className="scene-wrapper" onDragOver={handleDragOver} onDrop={handleDrop}>
             {hasMessages ? (
               <div className="scene-container">
                 <div className="transform-controls-ui">

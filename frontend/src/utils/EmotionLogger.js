@@ -52,12 +52,12 @@ export class EmotionLogger {
       return acc;
     }, {});
 
-    // Safely find dominant emotion
-    const dominantEmotion = Object.keys(emotionCount).length > 0 
-      ? Object.keys(emotionCount).reduce((a, b) => 
-          emotionCount[a] > emotionCount[b] ? a : b
-        )
-      : 'neutral';
+    const dominantEmotion =
+      Object.keys(emotionCount).length > 0
+        ? Object.keys(emotionCount).reduce((a, b) =>
+            emotionCount[a] > emotionCount[b] ? a : b
+          )
+        : 'neutral';
 
     return {
       session: this.currentSession,
@@ -75,12 +75,10 @@ export class EmotionLogger {
     return summary;
   }
 
-  // Helper method to get recent emotions
   getRecentEmotions(limit = 10) {
     return this.emotionHistory.slice(-limit);
   }
 
-  // Helper method to clear history
   clearHistory() {
     this.emotionHistory = [];
     this.currentSession = null;

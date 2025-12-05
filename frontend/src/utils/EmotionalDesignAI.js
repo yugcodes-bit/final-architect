@@ -6,7 +6,7 @@ export class EmotionalDesignAI {
   }
 
   analyzeEmotionPatterns(emotionHistory) {
-    console.log('🔍 Analyzing emotion patterns from history:', emotionHistory.length, 'entries');
+    console.log('🔍 Analyzing emotion patterns from history:', emotionHistory?.length || 0, 'entries');
     
     const patterns = {
       positiveTriggers: {},
@@ -95,7 +95,7 @@ export class EmotionalDesignAI {
     });
 
     // Suggest new elements based on positive triggers
-    Object.entries(emotionPatterns.positiveTriggers)
+    Object.entries(emotionPatterns.positiveTriggers || {})
       .filter(([category, score]) => score >= 1) // Lower threshold for testing
       .forEach(([category, score]) => {
         const alreadyInDesign = designElements.some(el => 
@@ -119,7 +119,7 @@ export class EmotionalDesignAI {
   }
 
   getEmotionalSummary(emotionHistory) {
-    const totalReactions = emotionHistory.length;
+    const totalReactions = emotionHistory?.length || 0;
     if (totalReactions === 0) {
       return {
         totalReactions: 0,

@@ -15,6 +15,28 @@ const SceneCapture = forwardRef((props, ref) => {
       gl.render(scene, camera);
       // Return the image as a Base64 string (JPEG format, 0.5 quality to save space)
       return gl.domElement.toDataURL('image/jpeg', 0.5);
+    },
+
+    getFloorPosition: (clientX, clientY) => {
+      // Get the bounding rectangle of the canvas
+      const rect = gl.domElement.getBoundingClientRect();
+
+      const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+      // Set up the Raycaster
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+
+      // Create a virtual floor plane at Y=0
+      const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      const target = new THREE.Vector3();
+
+      // Check where the ray hits the floor
+      raycaster.ray.intersectPlane(plane, target);
+
+      // Return the [x, y, z] array
+      return target ? [target.x, 0, target.z] : [0, 0, 0];
     }
   }));
   return null;

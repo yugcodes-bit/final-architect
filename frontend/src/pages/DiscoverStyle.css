@@ -1,223 +1,351 @@
+/* --- GOOGLE FONTS IMPORT --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* --- GLOBAL PAGE STYLES --- */
 .discover-style-page {
+ overflow: hidden;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background-color: #121212;
-  color: #ffffff;
-  padding: 2rem;
-  font-family: 'Inter', sans-serif;
-  box-sizing: border-box;
+
+  position: relative;
+  /* Subtle background grid pattern */
 }
 
-/* --- 1. Start State --- */
-.start-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  max-width: 600px;
+.bg-video {
+  position: absolute;
+  top: 0;
+  left: 0%;
+  width: 100%;
+  height: 138.9vh;
+  object-fit: cover;
+  z-index: -1;
+  overflow: hidden;
 }
-
-.start-wrapper h2 {
-  font-size: 2.5rem;
-  color: #a78bfa; /* Light purple */
+.bg-video-end{
+  position: absolute;
+  top: 180%;
+  left: 0%;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  z-index: -1;
+  overflow: hidden;
 }
-
-.start-wrapper p {
-  font-size: 1.1rem;
-  color: #d1d5db; /* Light gray */
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.start-button, .back-button {
-  font-size: 1rem;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
+/* --- BUTTON STYLES (Modern & Minimal) --- */
+.start-button {
+  background: #ffffff;
+  color: #000000;
   border: none;
+  padding: 16px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-weight: 600;
-}
-
-.start-button {
-  background-color: #8b5cf6; /* Purple */
-  color: white;
-  margin-bottom: 1rem;
+  margin-top: 2rem;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
 }
 
 .start-button:hover {
-  background-color: #a78bfa;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.2);
+  background: #f0f0f0;
 }
 
-.back-button {
-  background-color: transparent;
-  color: #9ca3af;
-  border: 1px solid #4b5563;
+/* --- 1. START & RESULTS WRAPPERS (Center Cards) --- */
+.start-wrapper,
+.results-wrapper {
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3rem;
+  border: 5px solid white;
+  border-radius: 32px;
+  text-align: center;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 0.8s ease-out;
 }
 
-.back-button:hover {
-  background-color: #374151;
-  color: white;
+.start-wrapper h2,
+.results-wrapper h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background-clip: text;
+ 
 }
 
-/* --- 2. Calibrating State --- */
+.start-wrapper p,
+.results-wrapper p {
+  font-size: 1.1rem;
+  color: #cccccc;
+  line-height: 1.6;
+}
+
+.start-wrapper ul {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0;
+  background: rgba(0,0,0,0.2);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.start-wrapper li {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #eee;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+}
+
+/* --- 2. BENTO LAYOUT (Split View) --- */
 .calibration-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  height: 85vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.split-view-container {
+  display: grid;
+  grid-template-columns: 3fr 1fr; /* Image takes 3 parts, Webcam takes 1 */
+  gap: 24px;
+  width: 95%;
+  height: 100%;
+}
+
+/* --- BENTO BOX 1: MAIN IMAGE AREA --- */
+.calibration-image-wrapper {
+  position: relative;
+  background: #111;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.slide-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8; /* Slightly darkened for text readability */
+  transition: opacity 0.5s ease;
+}
+
+/* TYPEWRITER QUESTION OVERLAY */
+.question-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+  padding: 4rem 3rem 2rem 3rem;
+  z-index: 10;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
+  align-items: flex-start;
 }
 
-.calibration-wrapper h2 {
-  font-size: 2rem;
-  color: #a78bfa;
-  animation: pulse 2s infinite;
+.question-overlay h2 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #fff;
+  /* Typewriter Base Styles */
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #fff; /* Cursor */
+  width: 0;
+  animation: typing 2.5s steps(40, end) forwards, blink 0.75s step-end infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.calibration-ui {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-  width: 100%;
-}
-
-.calibration-image-wrapper {
-  flex-basis: 640px;
-  max-width: 640px;
-  height: 480px;
-  background-color: #1f2937;
-  border-radius: 12px;
+.mic-indicator {
   display: flex;
   align-items: center;
-  justify-content: center;
+  font-size: 0.9rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.transcript-hint {
+  font-size: 1.2rem;
+  color: #4cd137; /* Green for detected text */
+  font-style: italic;
+  min-height: 1.5rem;
+  font-weight: 500;
+}
+
+/* --- BENTO BOX 2: WEBCAM SIDEBAR --- */
+.calibration-webcam-wrapper {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px;
   position: relative;
   overflow: hidden;
-  border: 2px solid #374151;
 }
 
-.calibration-image-wrapper img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  border-radius: 8px;
-  animation: fadeIn 0.5s ease-in-out;
+.mini-webcam .emotion-detector {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+.mini-webcam video {
+  border-radius: 24px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.1);
 }
 
+.webcam-hint {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #888;
+  text-align: center;
+}
+
+/* --- FEEDBACK OVERLAYS (LIKED / PASSED) --- */
+.feedback-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  font-weight: 800;
+  padding: 1rem 3rem;
+  border-radius: 20px;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.feedback-overlay.positive {
+  background: rgba(46, 213, 115, 0.2);
+  border: 2px solid #2ed573;
+  color: #2ed573;
+}
+
+.feedback-overlay.negative {
+  background: rgba(255, 71, 87, 0.2);
+  border: 2px solid #ff4757;
+  color: #ff4757;
+}
+
+/* --- PROGRESS BAR --- */
 .calibration-progress-bar {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 8px;
-  background-color: #374151;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .progress-bar-fill {
-  width: 100%;
   height: 100%;
-  background-color: #8b5cf6;
-  animation: progress-bar-anim linear forwards;
-  transform-origin: left;
+  background: #ffffff;
+  width: 0%;
+  animation-name: fillProgress;
+  animation-timing-function: linear;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-@keyframes progress-bar-anim {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+/* --- ANIMATIONS --- */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.calibration-webcam-wrapper {
-  flex-basis: 320px;
-  max-width: 320px;
+@keyframes fillProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
 }
 
-/* Make EmotionDetector component fit */
-.calibration-webcam-wrapper .emotion-detector {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-.calibration-webcam-wrapper .webcam-feed {
-  width: 320px;
-  height: 240px;
-}
-.calibration-webcam-wrapper .emotion-display {
-  width: 320px;
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- 3. Results State --- */
-.results-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  animation: fadeIn 1s ease;
+@keyframes popIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
-.results-wrapper h2 {
-  font-size: 2.5rem;
-  color: #a78bfa;
+/* Typewriter Keyframes */
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
 }
 
-.profile-card {
-  background-color: #1f2937;
-  border-radius: 12px;
-  padding: 2rem;
-  margin: 2rem 0;
-  display: flex;
-  gap: 2rem;
-  border: 1px solid #374151;
-  width: 100%;
-  max-width: 700px;
+@keyframes blink {
+  50% { border-color: transparent; }
 }
 
-.profile-section {
-  flex: 1;
-  text-align: left;
+/* Pulsing Dot for Mic */
+.pulsing-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #ff4757; /* Red when recording */
+  border-radius: 50%;
+  margin-right: 10px;
+  box-shadow: 0 0 0 rgba(255, 71, 87, 0.4);
+  animation: pulse 1.5s infinite;
 }
 
-.profile-section h3 {
-  font-size: 1.2rem;
-  color: #e5e7eb;
-  border-bottom: 2px solid #8b5cf6;
-  padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
 }
 
-.profile-section.likes h3 { border-color: #34d399; /* Green */ }
-.profile-section.dislikes h3 { border-color: #f87171; /* Red */ }
-
-.profile-section ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.profile-section li {
-  font-size: 1.1rem;
-  color: #d1d5db;
-  padding: 0.5rem;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-  background-color: #374151;
-  text-transform: capitalize;
-}
-
-.results-wrapper p {
-  font-size: 1.1rem;
-  color: #d1d5db;
-  margin-bottom: 2rem;
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+  .split-view-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 2fr 1fr;
+  }
+  .question-overlay h2 {
+    font-size: 1.5rem;
+    white-space: normal; /* Disable typewriter wrapper on small screens */
+    animation: none;
+    border: none;
+    width: auto;
+  }
 }

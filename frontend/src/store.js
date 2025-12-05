@@ -1,7 +1,6 @@
-// src/store.js
 import { create } from 'zustand';
 
-// Lighting Analysis Class
+// Lighting Analysis Class (Kept exactly as you had it)
 class LightingAnalysis {
   constructor() {
     this.furniture = [];
@@ -10,7 +9,6 @@ class LightingAnalysis {
   }
 
   addFurniture(id, position, dimensions, modelType) {
-    // Only track furniture types, not lamps
     if (modelType && !modelType.includes('lamp')) {
       this.furniture.push({ id, position, dimensions, modelType });
       this.calculateShadows();
@@ -18,7 +16,6 @@ class LightingAnalysis {
   }
 
   addLamp(id, position, modelType) {
-    // Only track lamp types
     if (modelType && modelType.includes('lamp')) {
       this.lamps.push({ id, position, modelType });
       this.calculateShadows();
@@ -26,18 +23,10 @@ class LightingAnalysis {
   }
 
   moveObject(id, newPosition, modelType) {
-    // Update furniture position
     const furniture = this.furniture.find(item => item.id === id);
-    if (furniture) {
-      furniture.position = newPosition;
-    }
-
-    // Update lamp position
+    if (furniture) furniture.position = newPosition;
     const lamp = this.lamps.find(item => item.id === id);
-    if (lamp) {
-      lamp.position = newPosition;
-    }
-
+    if (lamp) lamp.position = newPosition;
     this.calculateShadows();
   }
 
@@ -52,14 +41,13 @@ class LightingAnalysis {
     const furnPos = furniture.position;
     const furnDims = furniture.dimensions;
 
-    // Check if lamp is in front of furniture (simple 2D top-down check)
     const horizontalOverlap = 
       lampPos[0] >= furnPos[0] - furnDims[0]/2 && 
       lampPos[0] <= furnPos[0] + furnDims[0]/2;
       
     const verticalProximity = 
-      Math.abs(lampPos[2] - furnPos[2]) < 2 && // Lamp is close in Z-axis (depth)
-      lampPos[2] < furnPos[2]; // Lamp is in front of furniture
+      Math.abs(lampPos[2] - furnPos[2]) < 2 && 
+      lampPos[2] < furnPos[2];
 
     return horizontalOverlap && verticalProximity;
   }
@@ -109,17 +97,30 @@ class LightingAnalysis {
 }
 
 export const useStore = create((set, get) => ({
-  // STATE
+  // --- EXISTING STATE ---
   models: [],
   selectedObject: null,
   transformMode: 'translate',
   lightIntensity: 10,
   
-  // NEW: Lighting Analysis State
+  // Lighting Analysis State
   lightingAnalysis: new LightingAnalysis(),
   shadowMap: [],
 
-  // ACTIONS
+  // --- EMOTIONAL STATE (Auto-placed items from Smile) ---
+  emotionalLoadout: [], 
+
+  // --- NEW: VOICE STATE (Recommended items for Library Panel) ---
+  recommendedLibrary: [],
+
+  // --- ACTIONS ---
+  
+  // Save models detected by Smile (Auto-place)
+  setEmotionalLoadout: (models) => set({ emotionalLoadout: models }),
+
+  // NEW: Save models confirmed by Voice (Library "For You" section)
+  setRecommendedLibrary: (items) => set({ recommendedLibrary: items }),
+
   setModels: (newModels) => {
     const lightingAnalysis = get().lightingAnalysis;
     lightingAnalysis.clear();
@@ -193,12 +194,12 @@ export const useStore = create((set, get) => ({
     };
   }),
 
-  // NEW: Direct access to shadow map
+  // Direct access to shadow map
   getShadowMap: () => {
     return get().shadowMap;
   },
 
-  // NEW: Force shadow recalculation (useful for manual updates)
+  // Force shadow recalculation
   recalculateShadows: () => set((state) => {
     const lightingAnalysis = state.lightingAnalysis;
     lightingAnalysis.calculateShadows();

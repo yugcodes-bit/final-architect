@@ -53,6 +53,8 @@ const Create = () => {
   const location = useLocation();
   const sceneRef = useRef();
 
+  const [isOutlinerOpen, setIsOutlinerOpen] = useState(false); // <--- ADD THIS
+
   // --- STATE ---
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -60,10 +62,15 @@ const Create = () => {
   const [models, setModels] = useState([]);
   const [transformMode, setTransformMode] = useState("translate");
   const [furnitureLibrary, setFurnitureLibrary] = useState([]);
+
+  // Existing state...
   const [selectedObject, setSelectedObject] = useState(null);
   const [isLibraryOpen, setLibraryOpen] = useState(false);
   const [lightIntensity, setLightIntensity] = useState(10);
   const [auraAnalysisEnabled, setAuraAnalysisEnabled] = useState(false);
+  
+  // --- NEW STATE ---
+  const [selectionTarget, setSelectionTarget] = useState(null);
   
   // User/Save State
   const [designName, setDesignName] = useState("My New Room");
@@ -447,6 +454,11 @@ const Create = () => {
     setSelectedObject(null);
   };
 
+  const handleOutlinerClick = (modelInstance) => {
+      // Broadcast this ID to the 3D scene
+      setSelectionTarget(modelInstance.instanceId);
+    };
+
   const handleDiscoverClick = () => {
     navigate('/discover-style');
   };
@@ -614,6 +626,7 @@ const Create = () => {
                   {/* --- SCENE COMPONENT WITH REF --- */}
                   <Scene
                     ref={sceneRef} 
+                    selectionTarget={selectionTarget} // <--- ADD THIS
                     models={models}
                     transformMode={transformMode}
                     selectedObject={selectedObject}
@@ -642,6 +655,45 @@ const Create = () => {
               </form>
             </div>
           </div>
+          {/* --- RIGHT SIDEBAR (SCENE OUTLINER) --- */}
+          
+          {/* 1. The Toggle Arrow */}
+          <button 
+            className={`outliner-toggle ${isOutlinerOpen ? 'open' : ''}`}
+            onClick={() => setIsOutlinerOpen(!isOutlinerOpen)}
+            title="Toggle Scene List"
+          >
+            {isOutlinerOpen ? "→" : "←"}
+          </button>
+
+          {/* 2. The Panel */}
+          <div className={`right-sidebar ${isOutlinerOpen ? 'open' : ''}`}>
+            <div className="right-sidebar-header">
+              <h3>Room Objects</h3>
+              <span className="item-count">{models.length} Items</span>
+            </div>
+            
+            <div className="outliner-list">
+              {models.length === 0 ? (
+                <div className="empty-outliner">Room is empty</div>
+              ) : (
+                models.map((model, index) => (
+                  <div 
+                    key={model.instanceId}
+                    className={`outliner-item ${selectedObject?.userData?.instanceId === model.instanceId ? 'active' : ''}`}
+                    onClick={() => handleOutlinerClick(model)}
+                  >
+                    <span className="item-icon">📦</span>
+                    <div className="item-info">
+                      <span className="item-name">{model.models.category || "Unknown Item"}</span>
+                      <span className="item-id">#{index + 1}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          {/* ---------------------------------------- */}
         </div>
       </div>
     </div>

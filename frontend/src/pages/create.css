@@ -1552,3 +1552,150 @@
   cursor: pointer;
   transition: transform 0.2s;
 }
+
+/* src/pages/create.css - PROFESSIONAL OUTLINER CSS */
+
+/* 1. THE PANEL (Clean Dark Sidebar) */
+.right-sidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 260px; /* Standard width */
+  height: 100%;
+  background-color: #1a1a1a; /* Matte Dark Grey (Not transparent) */
+  border-left: 1px solid #333; /* Clean divider */
+  transform: translateX(100%); /* Hidden by default */
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth slide */
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+}
+
+.right-sidebar.open {
+  transform: translateX(0);
+}
+
+/* 2. TOGGLE ARROW (Subtle Tab) */
+.outliner-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  
+  /* Professional Tab Style */
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-right: none; /* Attach to edge */
+  color: #ccc;
+  
+  width: 24px;
+  height: 40px;
+  border-radius: 6px 0 0 6px;
+  cursor: pointer;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: right 0.3s ease, background 0.2s;
+}
+
+.outliner-toggle:hover {
+  background: #333;
+  color: white;
+}
+
+/* When open, the tab moves with the sidebar */
+.outliner-toggle.open {
+  right: 260px; 
+  background: #1a1a1a; /* Match sidebar */
+}
+
+/* 3. HEADER (Clean Typography) */
+.right-sidebar-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #222; /* Slightly lighter header */
+}
+
+.right-sidebar-header h3 {
+  margin: 0;
+  color: #eee;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.item-count {
+  font-size: 0.75rem;
+  background: #333;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #aaa;
+  font-weight: 500;
+}
+
+/* 4. LIST ITEMS (Figma/VS Code Style) */
+.outliner-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 0; /* No side padding for full-width hover */
+}
+
+.outliner-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-left: 3px solid transparent; /* Marker for selection */
+}
+
+/* Hover: Subtle Grey */
+.outliner-item:hover {
+  background: #252525;
+}
+
+/* Active (Selected): High Contrast */
+.outliner-item.active {
+  background: #2a3b4c; /* Professional Blue-Grey Tint */
+  border-left-color: #007acc; /* VS Code Blue Marker */
+}
+
+.item-icon {
+  margin-right: 12px;
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.item-name {
+  color: #ddd;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.item-id {
+  color: #666;
+  font-size: 0.7rem;
+  font-family: monospace; /* Tech feel */
+}
+
+/* Empty State */
+.empty-outliner {
+  color: #555;
+  text-align: center;
+  margin-top: 60px;
+  font-size: 0.9rem;
+}

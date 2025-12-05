@@ -3,7 +3,7 @@ import { useGLTF } from '@react-three/drei';
 import { useMemo, useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 
-export function Model({ modelData, setSelectedObject, lightIntensity }) {
+export function Model({ modelData, setSelectedObject, selectionTarget, lightIntensity }) { // <--- Add selectionTarget prop
   const [modelError, setModelError] = useState(false);
   const groupRef = useRef();
   const pointLightRef = useRef();
@@ -32,6 +32,17 @@ export function Model({ modelData, setSelectedObject, lightIntensity }) {
     });
     return cloned;
   }, [scene, modelError]);
+
+
+
+  // --- 🧠 NEW: REMOTE SELECTION LISTENER ---
+  useEffect(() => {
+    // If the Sidebar broadcasted MY instanceId, I select myself!
+    if (selectionTarget === modelData.instanceId && groupRef.current) {
+      setSelectedObject(groupRef.current);
+      console.log("🎯 Remote Selected:", modelData.models.category);
+    }
+  }, [selectionTarget, modelData.instanceId, setSelectedObject]); 
 
   // Calculate the height of the lamp to position the light correctly
   useEffect(() => {

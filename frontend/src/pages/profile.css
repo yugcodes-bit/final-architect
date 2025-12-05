@@ -193,3 +193,50 @@
     flex: none;
   }
 }
+
+/* --- LIGHT MODE OVERRIDES --- */
+body.light-mode .profile-page {
+  background-color: #f5f7fa;
+  background-image: none;
+  color: #1a1a1a;
+}
+
+body.light-mode .profile-header,
+body.light-mode .detail-item {
+  background: #ffffff;
+  border: 1px solid #e1e4e8;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+body.light-mode .profile-header h1 {
+  color: #333;
+}
+
+body.light-mode .email-text {
+  color: #666;
+}
+
+body.light-mode .avatar-circle {
+  background: #f0f0f0;
+  border: 3px solid #007bff;
+  color: #007bff;
+  box-shadow: 0 10px 20px rgba(0, 123, 255, 0.15);
+}
+
+body.light-mode .detail-item .label {
+  color: #555;
+}
+
+body.light-mode .detail-item .value {
+  color: #000;
+}
+
+body.light-mode .action-btn.primary {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+body.light-mode .action-btn.primary:hover {
+  background: #007bff;
+  color: white;
+}

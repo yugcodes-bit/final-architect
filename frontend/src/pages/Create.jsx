@@ -456,6 +456,15 @@ const Create = () => {
 
   return (
     <div className="create-page">
+
+        {/* 👇 NEW: MOBILE ORIENTATION WARNING 👇 */}
+            <div className="mobile-orientation-warning">
+              <div className="rotate-icon">📱➡️🔄</div>
+              <h2>Please Rotate Your Phone</h2>
+              <p>This experience requires Landscape Mode.</p>
+            </div>
+            {/* 👆 END WARNING 👆 */}
+
       <video
         autoPlay
         loop

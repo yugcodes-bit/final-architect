@@ -364,38 +364,54 @@
 
 
 /* Styles for the Transform Controls UI */
+/* --- UPDATED TRANSFORM CONTROLS (Glass + Neon) --- */
 .transform-controls-ui {
   position: absolute;
   top: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 8px;
-  padding: 4px;
+  
+  /* Glass Container */
+  background: rgba(10, 10, 10, 0.85); 
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 8px;
   z-index: 100;
   display: flex;
-  gap: 4px;
+  gap: 8px;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 .transform-controls-ui button {
-  background-color: #333;
-  color: white;
-  border: 1px solid #555;
-  padding: 8px 12px;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #aaa;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
 }
 
 .transform-controls-ui button:hover {
-  background-color: #444;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
+/* Active State - NEON CYAN */
 .transform-controls-ui button.active {
-  background-color: #5a5a5a;
-  border-color: #888;
+  background: rgba(0, 243, 255, 0.1);
+  color: #00f3ff;
+  border-color: #00f3ff;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
 }
-
 /* Styles for the Furniture Library */
 .furniture-library {
   margin-top: 20px;
@@ -443,13 +459,24 @@
 }
 
 /* Style for the delete button */
+/* --- UPDATED DELETE BUTTON (Red Warning) --- */
 .delete-button {
-  background-color: #b92f2f !important; /* Important to override other button styles */
+  background: rgba(255, 68, 68, 0.1) !important;
+  color: #ff4444 !important;
+  border: 1px solid #ff4444 !important;
+  padding: 8px 16px !important;
   margin-left: 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
 }
 
 .delete-button:hover {
-  background-color: #d13a3a !important;
+  background: #ff4444 !important;
+  color: white !important;
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
+  transform: translateY(-2px);
 }
 
 /* --- NEW CSS FOR ADVANCED LIBRARY --- */
@@ -906,28 +933,30 @@
 /* Add to create.css */
 /* Professional Aura Analysis Toggle */
 .aura-button {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    transition: all 0.3s ease;
-}
-
-.aura-button.active {
-    background: linear-gradient(45deg, #f093fb, #f5576c);
-    box-shadow: 0 4px 20px rgba(245, 87, 108, 0.4);
+  background: rgba(188, 19, 254, 0.1) !important; /* Override gradients */
+  color: #bc13fe !important;
+  border: 1px solid #bc13fe !important;
+  padding: 8px 16px !important;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
 }
 
 .aura-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: #bc13fe !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(188, 19, 254, 0.6);
+  transform: translateY(-2px);
+}
+
+.aura-button.active {
+  background: #bc13fe !important;
+  color: white !important;
+  box-shadow: 0 0 25px rgba(188, 19, 254, 0.8);
 }
 
 .aura-button.active:hover {
@@ -1094,37 +1123,54 @@
 .save-controls {
   display: flex;
   gap: 10px;
-  margin-left: 20px;
-  border-left: 1px solid #444;
-  padding-left: 20px;
+  margin-left: 15px;
+  padding-left: 15px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2); /* Separator line */
+  align-items: center;
 }
 
 .design-name-input {
-  background: #222;
-  border: 1px solid #444;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  width: 150px;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid #444 !important;
+  color: white !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  width: 140px !important;
+  font-family: 'Poppins', sans-serif;
+  transition: border-color 0.3s;
+}
+
+.design-name-input:focus {
+  border-color: #00f3ff !important;
+  outline: none;
 }
 
 .save-button {
-  background: #28a745; /* Green */
-  color: white;
-  border: none;
-  padding: 8px 16px;
+  background: rgba(40, 167, 69, 0.15) !important;
+  color: #28a745 !important;
+  border: 1px solid #28a745 !important;
+  padding: 8px 16px !important;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
 }
 
 .save-button:hover {
-  background: #218838;
+  background: #28a745 !important;
+  color: white !important;
+  box-shadow: 0 0 15px rgba(40, 167, 69, 0.5);
+  transform: translateY(-2px);
 }
 
 .save-button:disabled {
-  background: #555;
+  background: transparent !important;
+  border-color: #555 !important;
+  color: #555 !important;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 /* src/pages/create.css */
@@ -1176,4 +1222,217 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   MOBILE & TABLET OPTIMIZATIONS
+   ========================================= */
+
+/* 1. THE ROTATE WARNING (Hidden by default) */
+.mobile-orientation-warning {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #000;
+  z-index: 9999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+
+.rotate-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  animation: rotatePhone 2s infinite;
+}
+
+@keyframes rotatePhone {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(90deg); }
+  50% { transform: rotate(90deg); }
+  75% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* 2. SHOW WARNING ONLY ON PORTRAIT MOBILE */
+@media only screen and (max-width: 900px) and (orientation: portrait) {
+  .mobile-orientation-warning {
+    display: flex; /* Show the warning */
+  }
+  .create-layout {
+    display: none; /* Hide the app */
+  }
+}
+
+/* 3. OPTIMIZE UI FOR LANDSCAPE MOBILE */
+@media only screen and (max-height: 500px) and (orientation: landscape) {
+  
+  /* Make sidebar float on top to save space */
+  .sidebar {
+    position: absolute;
+    height: 100%;
+    z-index: 200;
+    background-color: rgba(0,0,0,0.9); /* More solid for readability */
+  }
+  
+  /* Shrink the top control bar */
+  .transform-controls-ui {
+    top: 5px;
+    padding: 2px;
+    transform: translateX(-50%) scale(0.85); /* Shrink to 85% size */
+    width: max-content;
+  }
+  
+  .transform-controls-ui button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  /* Shrink the chat bar */
+  .chat-input-area {
+    bottom: 10px;
+    width: 60%; /* Don't cover the whole screen */
+    left: 60%;  /* Push slightly right to avoid sidebar */
+  }
+  
+  .chat-input-form {
+    padding: 2px;
+  }
+  
+  .chat-input-form input {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+
+  /* Hide non-essential UI if needed */
+  .typewriter-container {
+    display: none; /* Hide big text on small screens */
+  }
+  
+  .scene-viewport {
+    width: 100vw; /* Force full width */
+  }
+}
+
+/* =========================================
+   MOBILE PORTRAIT OPTIMIZATIONS
+   ========================================= */
+
+@media only screen and (max-width: 768px) and (orientation: portrait) {
+  
+  /* 1. Stack Elements Vertically */
+  .create-layout {
+    flex-direction: column; /* Stack Top-to-Bottom instead of Left-to-Right */
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* 2. The 3D Scene (Top Half) */
+  .layout-container {
+    height: 65vh; /* Takes up top 65% of screen */
+    width: 100%;
+    order: 1; /* Visual order: First */
+  }
+
+  .scene-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* 3. The Sidebar (Bottom Sheet) */
+  .sidebar {
+    width: 100% !important; /* Full width */
+    height: 35vh; /* Takes up bottom 35% */
+    position: relative;
+    order: 2; /* Visual order: Second */
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(10, 10, 10, 0.95); /* More solid background */
+    z-index: 200;
+  }
+
+  /* Hide the toggle button in portrait (always open) */
+  .sidebar-toggle {
+    display: none;
+  }
+
+  /* Adjust Sidebar Layout */
+  .sidebar-fixed-section {
+    display: flex;
+    overflow-x: auto; /* Horizontal scroll for buttons */
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    white-space: nowrap;
+  }
+
+  .sidebar-menu {
+    display: flex; /* Horizontal Menu */
+    flex-direction: row;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .sidebar-menu-item {
+    padding: 8px 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px;
+    font-size: 0.8rem;
+  }
+
+  /* 4. Chat & History Area */
+  .sidebar-scrollable-section {
+    padding: 10px;
+    padding-bottom: 20px; /* Space for bottom safe area */
+  }
+
+  .history-prompt-item {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+
+  /* 5. Floating Controls (Move/Rotate/Scale) */
+  .transform-controls-ui {
+    top: 10px;
+    width: 90%;
+    padding: 5px;
+    gap: 5px;
+    justify-content: center;
+    transform: translateX(-50%) scale(0.9); /* Slight shrink */
+  }
+
+  .transform-controls-ui button {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  /* 6. Chat Input */
+  .chat-input-area {
+    bottom: 10px; /* Position relative to the SCENE, not page */
+    width: 95%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+  }
+
+  .chat-input-form {
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+  }
+
+  .chat-input-form input {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  /* 7. Hide Non-Essential Elements */
+  .aura-legend {
+    display: none; /* Too cluttered for mobile portrait */
+  }
+  
+  .typewriter-text {
+    font-size: 1.2rem; /* Smaller intro text */
+  }
 }

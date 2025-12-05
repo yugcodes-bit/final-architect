@@ -173,3 +173,57 @@
   text-shadow: 0 0 10px var(--neon-purple);
   text-decoration: underline;
 }
+
+/* --- LIGHT MODE OVERRIDES --- */
+body.light-mode .login-page {
+  background-color: #f0f4f8;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(0, 123, 255, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba(100, 100, 100, 0.1) 0%, transparent 20%);
+  color: #333;
+}
+
+body.light-mode .login-container {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .login-container h2 {
+  background: linear-gradient(135deg, #333 0%, #007bff 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: none;
+}
+
+body.light-mode .login-input {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  color: #000;
+}
+
+body.light-mode .login-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+}
+
+body.light-mode .login-input::placeholder {
+  color: #999;
+}
+
+body.light-mode .back-home-btn {
+  background: white;
+  color: #555;
+  border-color: #ddd;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+body.light-mode .back-home-btn:hover {
+  color: #007bff;
+  border-color: #007bff;
+}
+
+body.light-mode .login-footer {
+  color: #666;
+  border-top: 1px solid #eee;
+}

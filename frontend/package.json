@@ -19,6 +19,7 @@
     "react-qr-code": "^2.0.18",
     "react-router-dom": "^6.25.1",
     "react-scripts": "^5.0.1",
+    "stats.js": "^0.17.0",
     "three": "^0.166.1",
     "web-vitals": "^4.2.2"
   },

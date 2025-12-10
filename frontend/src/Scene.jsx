@@ -1,48 +1,118 @@
 // src/Scene.jsx
 import React, { useRef, useEffect, useState, useMemo, forwardRef, useImperativeHandle } from 'react';
-import { useThree, useFrame, Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { useThree, useFrame, Canvas } from '@react-three/fiber'; 
 import * as THREE from 'three';
 import { Model } from './Model';
+import { OrbitControls, Stats, Html, Line } from '@react-three/drei';
 
-// --- NEW: Helper Component to Capture Screenshot ---
+// --- NEW: DIMENSIONS COMPONENT ---
+// --- UPDATED: 3D ROOM DIMENSIONS ---
+const Dimensions = ({ selectedObject }) => {
+  const [dimensions, setDimensions] = useState(null);
+  const [labelPosition, setLabelPosition] = useState([0, 0, 0]);
+
+  // Object Measurement Logic (Same as before)
+  useFrame(() => {
+    if (selectedObject) {
+      const box = new THREE.Box3().setFromObject(selectedObject);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+
+      const newDims = `${size.x.toFixed(2)}m × ${size.y.toFixed(2)}m × ${size.z.toFixed(2)}m`;
+      
+      if (dimensions !== newDims) setDimensions(newDims);
+      setLabelPosition([center.x, box.max.y + 0.2, center.z]);
+    } else {
+      if (dimensions) setDimensions(null);
+    }
+  });
+
+  // Room Constants
+  const ROOM_SIZE = 9.7;
+  const ROOM_HEIGHT = 10
+  ; // Standard ceiling height
+  const HALF = ROOM_SIZE / 2;
+  const COLOR = "#444"; // Subtle grey lines
+
+  return (
+    <group>
+      {/* 1. FLOOR GRID (Base) */}
+      <group position={[0, 0.01, 0]}>
+        <gridHelper args={[ROOM_SIZE, ROOM_SIZE, 0x555555, 0x222222]} />
+      </group>
+
+      {/* 2. 3D ROOM BOUNDARIES (The "Box") */}
+      <group>
+        {/* Vertical Corner Posts (Height) */}
+        <Line points={[[-HALF, 0, -HALF], [-HALF, ROOM_HEIGHT, -HALF]]} color={COLOR} lineWidth={1} />
+        <Line points={[[HALF, 0, -HALF], [HALF, ROOM_HEIGHT, -HALF]]} color={COLOR} lineWidth={1} />
+        <Line points={[[-HALF, 0, HALF], [-HALF, ROOM_HEIGHT, HALF]]} color={COLOR} lineWidth={1} />
+        <Line points={[[HALF, 0, HALF], [HALF, ROOM_HEIGHT, HALF]]} color={COLOR} lineWidth={1} />
+
+        {/* Ceiling Outline (Top) */}
+        <Line points={[[-HALF, ROOM_HEIGHT, -HALF], [HALF, ROOM_HEIGHT, -HALF]]} color={COLOR} lineWidth={1} />
+        <Line points={[[-HALF, ROOM_HEIGHT, HALF], [HALF, ROOM_HEIGHT, HALF]]} color={COLOR} lineWidth={1} />
+        <Line points={[[-HALF, ROOM_HEIGHT, -HALF], [-HALF, ROOM_HEIGHT, HALF]]} color={COLOR} lineWidth={1} />
+        <Line points={[[HALF, ROOM_HEIGHT, -HALF], [HALF, ROOM_HEIGHT, HALF]]} color={COLOR} lineWidth={1} />
+      </group>
+
+      {/* 3. DIMENSION LABELS (X, Y, Z) */}
+      
+      {/* Width (X-Axis) */}
+      <Html position={[0, 0, HALF + 0.2]} center transform sprite>
+        <div className="room-label">WIDTH: {ROOM_SIZE}m</div>
+      </Html>
+
+      {/* Depth (Z-Axis) */}
+      <Html position={[HALF + 0.2, 0, 0]} center transform sprite>
+        <div className="room-label" style={{ transform: 'rotate(90deg)' }}>LENGTH: {ROOM_SIZE}m</div>
+      </Html>
+
+      {/* Height (Y-Axis) */}
+      <Html position={[-HALF - 0.2, ROOM_HEIGHT / 2, -HALF]} center transform sprite>
+        <div className="room-label">HEIGHT: {ROOM_HEIGHT}m</div>
+      </Html>
+
+      {/* 4. SELECTED OBJECT TAG (Preserved) */}
+      {selectedObject && dimensions && (
+        <Html position={labelPosition} center>
+          <div className="dimension-tag" style={{ color: 'red', fontWeight: 'bold' }}>
+            {dimensions}
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
+
+// --- EXISTING: SceneCapture Helper ---
 const SceneCapture = forwardRef((props, ref) => {
   const { gl, scene, camera } = useThree();
 
   useImperativeHandle(ref, () => ({
     capture: () => {
-      // Force a render to ensure the buffer is fresh
       gl.render(scene, camera);
-      // Return the image as a Base64 string (JPEG format, 0.5 quality to save space)
       return gl.domElement.toDataURL('image/jpeg', 0.5);
     },
-
+    // New floor position logic for drag-and-drop
     getFloorPosition: (clientX, clientY) => {
-      // Get the bounding rectangle of the canvas
       const rect = gl.domElement.getBoundingClientRect();
-
       const x = ((clientX - rect.left) / rect.width) * 2 - 1;
       const y = -((clientY - rect.top) / rect.height) * 2 + 1;
-
-      // Set up the Raycaster
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
-
-      // Create a virtual floor plane at Y=0
       const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
       const target = new THREE.Vector3();
-
-      // Check where the ray hits the floor
       raycaster.ray.intersectPlane(plane, target);
-
-      // Return the [x, y, z] array
       return target ? [target.x, 0, target.z] : [0, 0, 0];
     }
   }));
   return null;
 });
 
-// ShadowAuraAnalysis Component (Unchanged)
+// --- EXISTING: ShadowAuraAnalysis Component ---
 const ShadowAuraAnalysis = ({ enabled, models }) => {
     const { scene, size } = useThree();
     const planeRef = useRef();
@@ -265,7 +335,7 @@ const SafeTransformControls = ({ object, mode, onMouseUp }) => {
   );
 };
 
-// --- ADD THIS MISSING COMPONENT ---
+// Error Boundary Component
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -282,15 +352,12 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-// ----------------------------------
 
-// export const Scene = forwardRef... (Your existing code follows here)
-
-// --- MODIFIED SCENE COMPONENT ---
+// --- MAIN SCENE COMPONENT ---
 // Now using forwardRef to allow the parent (Create.jsx) to call functions inside here
 export const Scene = forwardRef(({ 
   models = [], 
-  selectionTarget,
+  selectionTarget, // Used for remote selection
   transformMode, 
   selectedObject, 
   setSelectedObject, 
@@ -328,8 +395,14 @@ export const Scene = forwardRef(({
       }}
       dpr={1}
     >
+      {/* --- ADD STATS FOR FPS MONITORING --- */}
+      <Stats className="fps-stats" />
+
       {/* Attach the capture logic using the ref passed from Create.jsx */}
       <SceneCapture ref={ref} />
+
+      {/* --- ADD DIMENSIONS HERE --- */}
+      <Dimensions selectedObject={selectedObject} />
 
       <hemisphereLight skyColor={0x78909c} groundColor={0x455a64} intensity={0.8} />
       <directionalLight castShadow position={[0, 3, 2]} intensity={1.5} />
@@ -350,7 +423,6 @@ export const Scene = forwardRef(({
           <ErrorBoundary key={modelData.instanceId}>
             <Model
               modelData={modelData}
-              // 👇 PASS IT DOWN 👇
               selectionTarget={selectionTarget} 
               setSelectedObject={setSelectedObject}
               lightIntensity={lightIntensity}

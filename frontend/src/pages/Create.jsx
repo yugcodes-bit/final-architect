@@ -304,7 +304,7 @@ const Create = () => {
           .eq("category", item.name)
           .overlaps("tags", item.qualifiers)
           .limit(1)
-          .single();
+          .maybeSingle(); // <--- CHANGED HERE
         if (!error && data) modelData = data;
       }
 
@@ -315,7 +315,7 @@ const Create = () => {
           .select("file_url, category")
           .eq("category", item.name)
           .limit(1)
-          .single();
+          .maybeSingle(); // <--- CHANGED HERE
         modelData = data;
         queryError = error;
       }
@@ -383,7 +383,7 @@ const Create = () => {
       
     } else {
       try {
-        const response = await fetch("http://192.168.1.17:3002/api/generate", {
+        const response = await fetch("http://localhost:3002/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
